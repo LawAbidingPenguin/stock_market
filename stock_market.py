@@ -28,12 +28,13 @@ class MainWindow(ttk.Frame):
         # Search_company shortcut
         self.search_comp = ttk.Entry(self)
         self.search_comp.grid(row=0, column=0)
-        self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(self.search_comp.get()))
+        self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
+                                                        self.search_comp.get()))
 
-        self.search_button = ttk.Button(self, text='Search', 
-                                              command=lambda: 
-                                                [self.ticker_window(),
-                                                self.search_comp.delete(0, len(self.search_comp.get()))])
+        self.search_button = ttk.Button(self, text='Search', command=lambda : \
+                                       [self.ticker_window(),
+                                       self.search_comp.delete(0,
+                                       len(self.search_comp.get()))])
         self.search_button.grid(row=0, column=1)
 
         # Creating a new window to show search_suggestions
@@ -110,15 +111,16 @@ class MainWindow(ttk.Frame):
         for n in range(1, len(elements)+1):
             try:
                 dates.append(r.html.xpath(x_temp.substitute(tr=n, td=1), first=True).text)
-                close_values.append(float(r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
+                close_values.append(float(
+                r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
             except AttributeError:
-                close_values.append(float(r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
+                close_values.append(float(
+                r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
 
         stocks = {'Date': dates,
         'Close': close_values}
 
         df = pd.DataFrame(stocks, columns=['Date', 'Close'])
-        print(df)
 
     def search_suggestions(self, symbol):
         
@@ -162,7 +164,6 @@ class MainWindow(ttk.Frame):
         # If search bar is empty, hide window
         if suggestions == []:
             self.suggs_window.withdraw()
-
 
     def stock_news(self):
          
