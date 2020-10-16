@@ -2,7 +2,10 @@ import json
 import requests_html as req
 import webbrowser
 import io
+import datetime as dt
+import pandas as pd
 from PIL import Image, ImageTk
+from string import Template
 
 import tkinter as tk
 from tkinter import ttk
@@ -11,6 +14,8 @@ import urls_and_selectors as us
 
 #TODO Learn about ttk Styles
 #TODO Display news summary as TopLevel window
+#TODO Update MarketTrends with additional info
+#TODO Gather historic data to be used in charts
 
 class MainWindow(ttk.Frame):
     
@@ -25,9 +30,10 @@ class MainWindow(ttk.Frame):
         self.search_comp.grid(row=0, column=0)
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(self.search_comp.get()))
 
-        self.search_button = ttk.Button(self, text='Search', command=lambda: 
-                                                            [self.ticker_info_window(),
-                                                             self.search_comp.delete(0, len(self.search_comp.get()))])
+        self.search_button = ttk.Button(self, text='Search', 
+                                              command=lambda: 
+                                                [self.ticker_window(),
+                                                self.search_comp.delete(0, len(self.search_comp.get()))])
         self.search_button.grid(row=0, column=1)
 
         # Creating a new window to show search_suggestions
@@ -36,7 +42,7 @@ class MainWindow(ttk.Frame):
 
         self.stock_news()
 
-    # Function to be used in ticker_info_window
+    # Function to be used in ticker_window
     def stock_data(self, symbol):
         
         session = req.HTMLSession()
@@ -66,8 +72,8 @@ class MainWindow(ttk.Frame):
         return company_name, stock_value, value_change, summary
 
     # Displaying data retrieved from stock_data
-    def ticker_info_window(self):
-        #TODO create ticker_info_window
+    def ticker_window(self):
+        #TODO create ticker_window
         name, value, value_change, summary = self.stock_data(self.search_comp.get())
 
         name_label = ttk.Label(self, text=name)
@@ -84,8 +90,39 @@ class MainWindow(ttk.Frame):
             ttk.Label(self, text=v).grid(row=row, column=1)
             row += 1
 
-    def search_suggestions(self, symbol):
+    def chart_data(self, symbol, from_date, to_date, frequency):
 
+        session = req.HTMLSession()
+        r = session.get(f'https://finance.yahoo.com/quote/{symbol}/history?'
+                        f'period1={from_date}&period2={to_date}&interval={frequency}'
+                        f'&filter=history&frequency={frequency}&includeAdjustedClose=true')
+
+        dates = []
+        close_values = []
+        elements = r.html.xpath(('//*[@id="Col1-1-HistoricalDataTable-Proxy"]'
+                                 '/section/div[2]/table/tbody/tr'))
+        
+        # Xpath template
+        x_temp = Template(
+            '//*[@id="Col1-1-HistoricalDataTable-Proxy"]'
+            '/section/div[2]/table/tbody/tr[$tr]/td[$td]/span')
+
+        for n in range(1, len(elements)+1):
+            try:
+                dates.append(r.html.xpath(x_temp.substitute(tr=n, td=1), first=True).text)
+                close_values.append(float(r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
+            except AttributeError:
+                close_values.append(float(r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
+
+        stocks = {'Date': dates,
+        'Close': close_values}
+
+        df = pd.DataFrame(stocks, columns=['Date', 'Close'])
+        print(df)
+
+    def search_suggestions(self, symbol):
+        
+        # Destroy all widgets inside TopLevel window
         for child in self.suggs_window.winfo_children():
             child.destroy()
 
@@ -126,6 +163,7 @@ class MainWindow(ttk.Frame):
         if suggestions == []:
             self.suggs_window.withdraw()
 
+
     def stock_news(self):
          
         url = us.investing_news
@@ -135,11 +173,16 @@ class MainWindow(ttk.Frame):
         headlines = []
         news_urls = []
         images = []
+
+        # News template
+        n_temp = Template('//*[@id="leftColumn"]/div[4]/article[$ar]/div[1]/a')
+        a_temp = Template('//*[@id="leftColumn"]/div[4]/article[$ar]/a/img')
+
         for n in range(1, 13):
             try:
-                headlines.append(r.html.xpath(f'//*[@id="leftColumn"]/div[4]/article[{n}]/div[1]/a', first=True).text)
-                news_urls.append(r.html.xpath(f'//*[@id="leftColumn"]/div[4]/article[{n}]/div[1]/a', first=True).absolute_links.pop())
-                images.append(r.html.xpath(f'//*[@id="leftColumn"]/div[4]/article[{n}]/a/img', first=True).attrs['data-src'])
+                headlines.append(r.html.xpath(n_temp.substitute(ar=n), first=True).text)
+                news_urls.append(r.html.xpath(n_temp.substitute(ar=n), first=True).absolute_links.pop())
+                images.append(r.html.xpath(a_temp.substitute(ar=n), first=True).attrs['data-src'])
             except AttributeError:
                 headlines.append('NoneTypeObject')
                 news_urls.append('NoneTypeObject')
@@ -224,8 +267,6 @@ class MainWindow(ttk.Frame):
         for p in summary_paragraphs:
             summary += f'\n{p.text}'
 
-        
-
 class MarketTrends(ttk.Frame):
 
     def __init__(self, parent, *args, **kwargs):
@@ -241,44 +282,66 @@ class MarketTrends(ttk.Frame):
 
         trend_stock1 = res.html.xpath(us.trending_stock1, first=True)
         trend_stock1_name = res.html.xpath(us.trending_stock1_name, first=True)
-        trend_stock1_label = ttk.Label(self, text=trend_stock1.text)
-        trend_stock1_name_label = ttk.Label(self, text=trend_stock1_name.text)
-        
+        trend_stock1_value = res.html.xpath(us.trending_stock1_value, first=True)
+        trend_stock1_change = res.html.xpath(us.trending_stock1_change, first=True)
+        trend_stock1_percent = res.html.xpath(us.trending_stock1_percent, first=True)
+        trend_stock1_label = ttk.Label(self, text=f'{trend_stock1.text} {trend_stock1_name.text}')
+        trend_stock1_value_label = ttk.Label(self, text=(f'{trend_stock1_value.text} ' 
+                                                         f'{trend_stock1_change.text} '
+                                                         f'{trend_stock1_percent.text}'))
+
         trend_stock2 = res.html.xpath(us.trending_stock2, first=True)
         trend_stock2_name = res.html.xpath(us.trending_stock2_name, first=True) 
-        trend_stock2_label = ttk.Label(self, text=trend_stock2.text)
-        trend_stock2_name_label = ttk.Label(self, text=trend_stock2_name.text)
+        trend_stock2_value = res.html.xpath(us.trending_stock2_value, first=True)
+        trend_stock2_change = res.html.xpath(us.trending_stock2_change, first=True)
+        trend_stock2_percent = res.html.xpath(us.trending_stock2_percent, first=True)
+        trend_stock2_label = ttk.Label(self, text=f'{trend_stock2.text} {trend_stock2_name.text}')
+        trend_stock2_value_label = ttk.Label(self, text=(f'{trend_stock2_value.text} '
+                                                         f'{trend_stock2_change.text} '
+                                                         f'{trend_stock2_percent.text}'))
 
         trend_stock3 = res.html.xpath(us.trending_stock3, first=True)
-        trend_stock3_name = res.html.xpath(us.trending_stock3_name, first=True) 
-        trend_stock3_label = ttk.Label(self, text=trend_stock3.text)
-        trend_stock3_name_label = ttk.Label(self, text=trend_stock3_name.text)
+        trend_stock3_name = res.html.xpath(us.trending_stock3_name, first=True)
+        trend_stock3_value = res.html.xpath(us.trending_stock3_value, first=True)
+        trend_stock3_change = res.html.xpath(us.trending_stock3_change, first=True)
+        trend_stock3_percent = res.html.xpath(us.trending_stock3_percent, first=True) 
+        trend_stock3_label = ttk.Label(self, text=f'{trend_stock3.text} {trend_stock3_name.text}' )
+        trend_stock3_value_label = ttk.Label(self, text=(f'{trend_stock3_value.text} '
+                                                         f'{trend_stock3_change.text} '
+                                                         f'{trend_stock3_percent.text}'))
 
         trend_stock4 = res.html.xpath(us.trending_stock4, first=True)
-        trend_stock4_name = res.html.xpath(us.trending_stock4_name, first=True) 
-        trend_stock4_label = ttk.Label(self, text=trend_stock4.text)
-        trend_stock4_name_label = ttk.Label(self, text=trend_stock4_name.text)
+        trend_stock4_name = res.html.xpath(us.trending_stock4_name, first=True)
+        trend_stock4_value = res.html.xpath(us.trending_stock4_value, first=True)
+        trend_stock4_change = res.html.xpath(us.trending_stock4_change, first=True)
+        trend_stock4_percent = res.html.xpath(us.trending_stock4_percent, first=True) 
+        trend_stock4_label = ttk.Label(self, text=f'{trend_stock4.text} {trend_stock4_name.text}')
+        trend_stock4_value_label = ttk.Label(self, text=(f'{trend_stock4_value.text} '
+                                                         f'{trend_stock4_change.text} '
+                                                         f'{trend_stock4_percent.text}'))
 
         trend_stock5 = res.html.xpath(us.trending_stock5, first=True)
-        trend_stock5_name = res.html.xpath(us.trending_stock5_name, first=True)    
-        trend_stock5_label = ttk.Label(self, text=trend_stock5.text)
-        trend_stock5_name_label = ttk.Label(self, text=trend_stock5_name.text)
+        trend_stock5_name = res.html.xpath(us.trending_stock5_name, first=True)
+        trend_stock5_value = res.html.xpath(us.trending_stock5_value, first=True)
+        trend_stock5_change = res.html.xpath(us.trending_stock5_change, first=True)
+        trend_stock5_percent = res.html.xpath(us.trending_stock5_percent, first=True)    
+        trend_stock5_label = ttk.Label(self, text=f'{trend_stock5.text} {trend_stock5_name.text}')
+        trend_stock5_value_label = ttk.Label(self, text=(f'{trend_stock5_value.text} '
+                                                         f'{trend_stock5_change.text} '
+                                                         f'{trend_stock5_percent.text}'))
         
         # Grid Management
         trend_stock1_label.grid(row=0, column=0)
-        trend_stock1_name_label.grid(row=0, column=1)
-
         trend_stock2_label.grid(row=1, column=0)
-        trend_stock2_name_label.grid(row=1, column=1)
-
         trend_stock3_label.grid(row=2, column=0)
-        trend_stock3_name_label.grid(row=2, column=1)
-
         trend_stock4_label.grid(row=3, column=0)
-        trend_stock4_name_label.grid(row=3, column=1)
-
         trend_stock5_label.grid(row=4, column=0)
-        trend_stock5_name_label.grid(row=4, column=1)
+
+        trend_stock1_value_label.grid(row=0, column=1)
+        trend_stock2_value_label.grid(row=1, column=1)
+        trend_stock3_value_label.grid(row=2, column=1)
+        trend_stock4_value_label.grid(row=3, column=1)
+        trend_stock5_value_label.grid(row=4, column=1)
 
 def main():
     root = tk.Tk()
