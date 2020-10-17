@@ -1,11 +1,15 @@
-import json
-import requests_html as req
-import webbrowser
 import io
+import json
+import webbrowser
 import datetime as dt
-import pandas as pd
-from PIL import Image, ImageTk
+import requests_html as req
 from string import Template
+from PIL import Image, ImageTk
+
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import tkinter as tk
 from tkinter import ttk
@@ -41,7 +45,7 @@ class MainWindow(ttk.Frame):
         self.suggs_window = tk.Toplevel(self)
         self.suggs_window.withdraw()
 
-        self.stock_news()
+        self.chart_data('TSLA', 1602115200, 1602720000, '1d')
 
     # Function to be used in ticker_window
     def stock_data(self, symbol):
@@ -91,6 +95,7 @@ class MainWindow(ttk.Frame):
             ttk.Label(self, text=v).grid(row=row, column=1)
             row += 1
 
+    # from_date and to_date is to be represented as a timestamp
     def chart_data(self, symbol, from_date, to_date, frequency):
 
         session = req.HTMLSession()
@@ -117,10 +122,15 @@ class MainWindow(ttk.Frame):
                 close_values.append(float(
                 r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
 
+        dates.reverse()
+        close_values.reverse()
         stocks = {'Date': dates,
         'Close': close_values}
 
         df = pd.DataFrame(stocks, columns=['Date', 'Close'])
+        sns.set()
+        sns.lineplot(data=df, x='Date', y='Close')
+        plt.show()        
 
     def search_suggestions(self, symbol):
         
