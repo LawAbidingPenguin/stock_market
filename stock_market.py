@@ -9,7 +9,9 @@ from PIL import Image, ImageTk
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg,
+    NavigationToolbar2Tk)
 
 import tkinter as tk
 from tkinter import ttk
@@ -20,6 +22,7 @@ import urls_and_selectors as us
 #TODO Display news summary as TopLevel window
 #TODO Update MarketTrends with additional info
 #TODO Gather historic data to be used in charts
+#TODO Add graph for current day for real time quotes
 
 class MainWindow(ttk.Frame):
     
@@ -98,6 +101,9 @@ class MainWindow(ttk.Frame):
     # from_date and to_date is to be represented as a timestamp
     def chart_data(self, symbol, from_date, to_date, frequency):
 
+        chart_frame = ttk.Frame(self)
+        chart_frame.grid(row=1, column=0, columnspan=2)
+
         session = req.HTMLSession()
         r = session.get(f'https://finance.yahoo.com/quote/{symbol}/history?'
                         f'period1={from_date}&period2={to_date}&interval={frequency}'
@@ -127,10 +133,18 @@ class MainWindow(ttk.Frame):
         stocks = {'Date': dates,
         'Close': close_values}
 
-        df = pd.DataFrame(stocks, columns=['Date', 'Close'])
         sns.set()
-        sns.lineplot(data=df, x='Date', y='Close')
-        plt.show()        
+        df = pd.DataFrame(stocks, columns=['Date', 'Close'])
+        f = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = f.subplots()
+        sns.lineplot(data=df, x='Date', y='Close', ax=ax)
+        canvas = FigureCanvasTkAgg(f, chart_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+        toolbar = NavigationToolbar2Tk(canvas, chart_frame)
+        toolbar.update()
+        canvas._tkcanvas.pack()
 
     def search_suggestions(self, symbol):
         
