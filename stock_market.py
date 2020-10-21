@@ -48,7 +48,8 @@ class MainWindow(ttk.Frame):
         self.suggs_window = tk.Toplevel(self)
         self.suggs_window.withdraw()
 
-        self.chart_data('TSLA', 1602115200, 1602720000, '1d')
+        #self.chart_data('TSLA', 1602115200, 1602720000, '1d')
+        self.pre_market_graph("TSLA")
 
     # Function to be used in ticker_window
     def stock_data(self, symbol):
@@ -98,6 +99,49 @@ class MainWindow(ttk.Frame):
             ttk.Label(self, text=v).grid(row=row, column=1)
             row += 1
 
+    # graph to be used for pre market hour trades
+    def pre_market_graph(self, symbol):
+
+        # chart_frame = ttk.Frame(self)
+        # chart_frame.grid(row=1, column=0, columnspan=2)
+        
+        session = req.HTMLSession()
+        # pre market url template
+        pre_temp = Template(
+            'https://api.nasdaq.com/api/quote/$symb/extended-trading?markettype=pre&assetclass=stocks&time=$page'
+        )
+
+        time = []
+        price = []
+        # Go through all the pre market data and append time,price
+        for n in range(1,12):
+            r = session.get(pre_temp.substitute(symb=symbol, page=n))
+            page_text = json.loads(r.html.text)
+            trade_details = page_text['data']['tradeDetailTable']['rows']
+            trade_details.reverse()
+
+            for d in trade_details:
+                time.append(d['time'])
+                price.append(float(d['price'].replace('$','')))
+
+        pre_market_data = {
+            'Time': time,
+            'Price': price}
+
+        #sns.set()
+        # df = pd.DataFrame(pre_market_data, columns=['Time', 'Price'])
+        # f = plt.Figure(figsize=(6, 4), dpi=100)
+        # ax = f.subplots()
+        # sns.lineplot(data=df, x='Time', y='Price', ax=ax)
+        # canvas = FigureCanvasTkAgg(f, chart_frame)
+        # canvas.draw()
+        # canvas.get_tk_widget().pack()
+
+        # toolbar = NavigationToolbar2Tk(canvas, chart_frame)
+        # toolbar.update()
+        # canvas._tkcanvas.pack()
+        
+
     # from_date and to_date is to be represented as a timestamp
     def chart_data(self, symbol, from_date, to_date, frequency):
 
@@ -123,15 +167,16 @@ class MainWindow(ttk.Frame):
             try:
                 dates.append(r.html.xpath(x_temp.substitute(tr=n, td=1), first=True).text)
                 close_values.append(float(
-                r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
+                    r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
             except AttributeError:
                 close_values.append(float(
                 r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
 
         dates.reverse()
         close_values.reverse()
-        stocks = {'Date': dates,
-        'Close': close_values}
+        stocks = {
+            'Date': dates,
+            'Close': close_values}
 
         sns.set()
         df = pd.DataFrame(stocks, columns=['Date', 'Close'])
@@ -144,7 +189,7 @@ class MainWindow(ttk.Frame):
 
         toolbar = NavigationToolbar2Tk(canvas, chart_frame)
         toolbar.update()
-        canvas._tkcanvas.pack()
+        canvas._tkcanvas.pack()    
 
     def search_suggestions(self, symbol):
         
