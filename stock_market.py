@@ -48,9 +48,6 @@ class MainWindow(ttk.Frame):
         self.suggs_window = tk.Toplevel(self)
         self.suggs_window.withdraw()
 
-        #self.chart_data('TSLA', 1602115200, 1602720000, '1d')
-        self.pre_market_graph("TSLA")
-
     # Function to be used in ticker_window
     def stock_data(self, symbol):
         
@@ -82,71 +79,131 @@ class MainWindow(ttk.Frame):
 
     # Displaying data retrieved from stock_data
     def ticker_window(self):
-        #TODO create ticker_window
-        name, value, value_change, summary = self.stock_data(self.search_comp.get())
+        ticker = self.search_comp.get()
+        name, value, value_change, summary = self.stock_data(ticker) 
+
+        # Creating the graph
+        chart_frame = ttk.Frame(self)
+        chart_frame.grid(row=3, column=0, columnspan=4)
+
+        # Creating start date and end date comboxes
+        filter_frame = ttk.Frame(chart_frame)
+        filter_frame.pack(side=tk.TOP, fill=tk.X)
+
+        start_label = ttk.Label(filter_frame, text='Start date:')
+        end_label = ttk.Label(filter_frame, text='End Date:')      
+
+        days = []
+        years = []
+        months = []
+        for d in range(1,32):
+            days.append(d)
+        for y in range(2021, 1899, -1):
+            years.append(y)
+        for m in range(1,13):
+            months.append(m)
+
+        start_day = ttk.Combobox(filter_frame, values=days, width=2)
+        start_month = ttk.Combobox(filter_frame, values=months, width=2)
+        start_year = ttk.Combobox(filter_frame, values=years, width=5)
+
+        end_day = ttk.Combobox(filter_frame, values=days, width=2)
+        end_month = ttk.Combobox(filter_frame, values=months, width=2)
+        end_year = ttk.Combobox(filter_frame, values=years, width=5)
+        
+        start_label.grid(row=0, column=0, sticky='w')
+        start_day.grid(row=1, column=0, sticky='w')
+        start_month.grid(row=1, column=1, sticky='w')
+        start_year.grid(row=1, column=2, sticky='w')
+
+        end_label.grid(row=0, column=3, sticky='w', padx=(20,0))
+        end_day.grid(row=1, column=3, sticky='w', padx=(20,0))
+        end_month.grid(row=1, column=4, sticky='w')
+        end_year.grid(row=1, column=5, sticky='w')
+
+        today = str(dt.date.today())
+        today = today.split('-')
+        year = int(today[0])
+        month = int(today[1])
+        day = int(today[2])
+
+        end_day.set(day)
+        end_month.set(month)
+        end_year.set(year)
+
+        start_day.set(day)
+        if end_month.get() == '1':
+            start_month.set('12')
+            start_year.set(end_year.get()-1)
+        else:
+            start_month.set(str(int(end_month.get())-1))
+            start_year.set(year)        
+
+        freq_label = ttk.Label(filter_frame, text='Frequency:')
+        frequency = ttk.Combobox(filter_frame, width=8, 
+                                               values=['Daily',
+                                                       'Weekly',
+                                                       'Monthly'])
+        freq_label.grid(row=0, column=6, sticky='w', padx=(20,0))                                                         
+        frequency.grid(row=1, column=6, sticky='w', padx=(20,0))
+        frequency.set('Daily')
+
+        def create_chart():
+            frame = chart_frame
+            symbol = ticker
+
+            s_day = start_day.get()
+            s_month = start_month.get()
+            s_year = start_year.get()[-2:]
+
+            e_day = end_day.get()
+            e_month = end_month.get()
+            e_year = end_year.get()[-2:]
+
+            # Creating dates to be turned into timestamps
+            s_date = dt.datetime.strptime(f'{s_day}/{s_month}/{s_year}',
+                                          '%d/%m/%y')
+            e_date = dt.datetime.strptime(f'{e_day}/{e_month}/{e_year}',
+                                          '%d/%m/%y')
+
+            # Turning dates into timestamps
+            s_time = int(dt.datetime.timestamp(s_date))
+            e_time = int(dt.datetime.timestamp(e_date))
+
+            # Creating frequency argument
+            freq = ''
+            if frequency.get() == 'Daily':
+                freq = '1d'
+            elif frequency.get() == 'Weekly':
+                freq = '1wk'
+            else:
+                freq = '1mo'
+
+            self.chart_data(frame, symbol, s_time, e_time, freq)
+
+        # Initial chart
+        create_chart()    
+
+        apply_but = ttk.Button(filter_frame, text='Apply', 
+                                             command=create_chart)
+        apply_but.grid(row=1, column=7)                                           
 
         name_label = ttk.Label(self, text=name)
         value_label = ttk.Label(self, text=value)
         value_change_label = ttk.Label(self, text=value_change)
 
-        name_label.grid(row=1, column=0 ,columnspan=4, sticky='w')
-        value_label.grid(row=2, column=0, columnspan=2, sticky='e')
-        value_change_label.grid(row=2, column=2, columnspan=2, sticky='w')
+        name_label.grid(row=1, column=0, sticky='w')
+        value_label.grid(row=2, column=0, sticky='w')
+        value_change_label.grid(row=2, column=0, sticky='ne')
 
-        row = 3
+        row = 4
         for k,v in summary.items():
-            ttk.Label(self, text=k).grid(row=row, column=0)
-            ttk.Label(self, text=v).grid(row=row, column=1)
+            ttk.Label(self, text=k).grid(row=row, column=0, sticky='w')
+            ttk.Label(self, text=v).grid(row=row, column=1, sticky='w')
             row += 1
 
-    # graph to be used for pre market hour trades
-    def pre_market_graph(self, symbol):
-
-        # chart_frame = ttk.Frame(self)
-        # chart_frame.grid(row=1, column=0, columnspan=2)
-        
-        session = req.HTMLSession()
-        # pre market url template
-        pre_temp = Template(
-            'https://api.nasdaq.com/api/quote/$symb/extended-trading?markettype=pre&assetclass=stocks&time=$page'
-        )
-
-        time = []
-        price = []
-        # Go through all the pre market data and append time,price
-        for n in range(1,12):
-            r = session.get(pre_temp.substitute(symb=symbol, page=n))
-            page_text = json.loads(r.html.text)
-            trade_details = page_text['data']['tradeDetailTable']['rows']
-            trade_details.reverse()
-
-            for d in trade_details:
-                time.append(d['time'])
-                price.append(float(d['price'].replace('$','')))
-
-        pre_market_data = {
-            'Time': time,
-            'Price': price}
-
-        #sns.set()
-        # df = pd.DataFrame(pre_market_data, columns=['Time', 'Price'])
-        # f = plt.Figure(figsize=(6, 4), dpi=100)
-        # ax = f.subplots()
-        # sns.lineplot(data=df, x='Time', y='Price', ax=ax)
-        # canvas = FigureCanvasTkAgg(f, chart_frame)
-        # canvas.draw()
-        # canvas.get_tk_widget().pack()
-
-        # toolbar = NavigationToolbar2Tk(canvas, chart_frame)
-        # toolbar.update()
-        # canvas._tkcanvas.pack()
-        
-
     # from_date and to_date is to be represented as a timestamp
-    def chart_data(self, symbol, from_date, to_date, frequency):
-
-        chart_frame = ttk.Frame(self)
-        chart_frame.grid(row=1, column=0, columnspan=2)
+    def chart_data(self, frame, symbol, from_date, to_date, frequency):
 
         session = req.HTMLSession()
         r = session.get(f'https://finance.yahoo.com/quote/{symbol}/history?'
@@ -166,11 +223,28 @@ class MainWindow(ttk.Frame):
         for n in range(1, len(elements)+1):
             try:
                 dates.append(r.html.xpath(x_temp.substitute(tr=n, td=1), first=True).text)
-                close_values.append(float(
-                    r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text))
+
+                # Handling close values with a ',' separator (ex: 13,264.67)
+                try:
+                    c_value = float(r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text)
+                except ValueError:
+                    c_value = r.html.xpath(x_temp.substitute(tr=n, td=5), first=True).text
+                    c_value = c_value.split(",")
+                    c_value = ''.join(c_value)
+                    c_value = float(c_value)
+
+                close_values.append(c_value)
             except AttributeError:
-                close_values.append(float(
-                r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text))
+                # Handling close values with a ',' separator (ex: 13,264.67)
+                try:
+                    c_value = float(r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text)
+                except ValueError:
+                    c_value = r.html.xpath(x_temp.substitute(tr=n-1, td=5), first=True).text
+                    c_value = c_value.split(",")
+                    c_value = ''.join(c_value)
+                    c_value = float(c_value)
+
+                close_values.append(c_value)
 
         dates.reverse()
         close_values.reverse()
@@ -178,18 +252,21 @@ class MainWindow(ttk.Frame):
             'Date': dates,
             'Close': close_values}
 
-        sns.set()
         df = pd.DataFrame(stocks, columns=['Date', 'Close'])
+
+        sns.set_style('whitegrid')
         f = plt.Figure(figsize=(6, 4), dpi=100)
         ax = f.subplots()
+        ax.set_xticks([])
         sns.lineplot(data=df, x='Date', y='Close', ax=ax)
-        canvas = FigureCanvasTkAgg(f, chart_frame)
+        canvas = FigureCanvasTkAgg(f, frame)
         canvas.draw()
-        canvas.get_tk_widget().pack()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, ipady=25)
 
-        toolbar = NavigationToolbar2Tk(canvas, chart_frame)
+        toolbar = NavigationToolbar2Tk(canvas, frame, pack_toolbar=False)
         toolbar.update()
-        canvas._tkcanvas.pack()    
+        toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+        canvas._tkcanvas.pack()  
 
     def search_suggestions(self, symbol):
         
@@ -557,6 +634,7 @@ def main():
 
     # Configuring styles
     style = ttk.Style()
+    style.theme_use('winnative')
 
     main_window = MainWindow(root)
     market_trends = MarketTrends(root)
