@@ -21,8 +21,7 @@ import urls_and_selectors as us
 #TODO Learn about ttk Styles
 #TODO Display news summary as TopLevel window
 #TODO Update MarketTrends with additional info
-#TODO Gather historic data to be used in charts
-#TODO Add graph for current day for real time quotes
+#TODO Create frames for starting page and ticker window
 
 class MainWindow(ttk.Frame):
     
@@ -31,6 +30,10 @@ class MainWindow(ttk.Frame):
         self.parent = parent
 
         self.style = ttk.Style()
+        
+        # Frames for each page in the MainWindow
+        self.ticker_frame = ttk.Frame(self)
+        self.start_frame = ttk.Frame(self)
 
         # Search_company shortcut
         self.search_comp = ttk.Entry(self)
@@ -38,57 +41,74 @@ class MainWindow(ttk.Frame):
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
                                                         self.search_comp.get()))
 
-        self.search_button = ttk.Button(self, text='Search', command=lambda : \
+        self.search_button = ttk.Button(self, text='Search', command=lambda : 
                                        [self.ticker_window(),
                                        self.search_comp.delete(0,
                                        len(self.search_comp.get()))])
-        self.search_button.grid(row=0, column=1)
+        self.search_button.grid(row=0, column=1, sticky='w')
 
         # Creating a new window to show search_suggestions
         self.suggs_window = tk.Toplevel(self)
         self.suggs_window.withdraw()
 
-    # Function to be used in ticker_window
-    def stock_data(self, symbol):
+        self.start_window()
+
+    def search_suggestions(self, symbol):
         
+        # Destroy all widgets inside TopLevel window
+        for child in self.suggs_window.winfo_children():
+            child.destroy()
+
+        url = (f'https://query1.finance.yahoo.com/v1/finance/search?q={symbol}&lang=en-'
+              'US&region=US&quotesCount=6&newsCount=4&enableFuzzyQuery=false&'
+              'quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_'
+              'quote_single_token_query&newsQueryId=news_cie_vespa&enableCb='
+              'true&enableNavLinks=true&enableEnhancedTrivialQuery=true')
+
         session = req.HTMLSession()
+        res = session.get(url)
+        page_text = json.loads(res.html.text)
 
-        if symbol[0] == '^':
-            # Modified symbol variable without '^'
-            mod_symbol = symbol.replace('^', '')
-            r = session.get(f'https://finance.yahoo.com/quote/%5E{mod_symbol}?p={symbol}')
-        else:
-            r = session.get(f'https://finance.yahoo.com/quote/{symbol}?p={symbol}')
+        # Getting rid of KeyError
+        try:
+            suggestions = page_text['quotes']
+        except KeyError:
+            suggestions = []
+
+        suggestions = [item for item in suggestions if item['isYahooFinance'] == True]
+
+        # Dynamically creating labels to display search suggestions
+        n = 0
+        for item in suggestions:
+            # If ticker name is too long, shorten it
+            if len(item['symbol']) > 8:
+                ticker = item['symbol'][0:8] + '...'
+            else:
+                ticker = item['symbol'] 
+
+            ttk.Label(self.suggs_window, text=ticker).grid(row=n, column=0)
+            n += 1
+
+        self.suggs_window.deiconify()
+        self.search_comp.focus_set()
         
-        company_name = r.html.xpath(us.company_name, first=True).text
-        stock_value = r.html.xpath(us.stock_value, first=True).text
-        value_change = r.html.xpath(us.value_change, first=True).text
+        # If search bar is empty, hide window
+        if suggestions == []:
+            self.suggs_window.withdraw()
 
-        quote_summary = r.html.xpath(us.summary, first=True)
-        summary_list = quote_summary.text.split('\n')
-        
-        if len(summary_list) > 32:
-            summary_list = quote_summary.text.split('\n')[0:32]
-        
-        summary_keys = summary_list[0:len(summary_list):2]
-        summary_values = summary_list[1:len(summary_list):2]
-
-        summary = dict(zip(summary_keys, summary_values))
-
-        return company_name, stock_value, value_change, summary
-
-    # Displaying data retrieved from stock_data
+    # Displaying ticker info
     def ticker_window(self):
+
+        self.ticker_frame.destroy()
+        self.ticker_frame = ttk.Frame(self)
+        self.ticker_frame.grid(row=1,column=0)
+
         ticker = self.search_comp.get()
         name, value, value_change, summary = self.stock_data(ticker) 
 
-        # Creating the graph
-        chart_frame = ttk.Frame(self)
-        chart_frame.grid(row=3, column=0, columnspan=4)
-
         # Creating start date and end date comboxes
-        filter_frame = ttk.Frame(chart_frame)
-        filter_frame.pack(side=tk.TOP, fill=tk.X)
+        filter_frame = ttk.LabelFrame(self.ticker_frame, text='Filter Graph')
+        filter_frame.grid(row=2, column=0, columnspan=4)
 
         start_label = ttk.Label(filter_frame, text='Start date:')
         end_label = ttk.Label(filter_frame, text='End Date:')      
@@ -149,7 +169,10 @@ class MainWindow(ttk.Frame):
         frequency.set('Daily')
 
         def create_chart():
-            frame = chart_frame
+
+            chart_frame = ttk.Frame(self.ticker_frame)
+            chart_frame.grid(row=3, column=0, columnspan=4)
+
             symbol = ticker
 
             s_day = start_day.get()
@@ -169,7 +192,19 @@ class MainWindow(ttk.Frame):
             # Turning dates into timestamps
             s_time = int(dt.datetime.timestamp(s_date))
             e_time = int(dt.datetime.timestamp(e_date))
-
+            
+            # Getting first trade time to notify the user
+            session = req.HTMLSession()
+            r = session.get('https://query1.finance.yahoo.com/v8/finance/'
+                            f'chart/{symbol}?region=US&lang=en-US&'
+                            'includePrePost=false&interval=2m&range=1d&'
+                            'corsDomain=finance.yahoo.com&.tsrc=finance')
+            page_text = json.loads(r.html.text)
+            first_trade_time = int(page_text['chart']['result']
+                              [0]['meta']['firstTradeDate'])
+            # first_trade_time in dd/mm/yy date form
+            ftd = dt.datetime.fromtimestamp(first_trade_time).strftime('%d/%m/%y')
+            
             # Creating frequency argument
             freq = ''
             if frequency.get() == 'Daily':
@@ -179,7 +214,15 @@ class MainWindow(ttk.Frame):
             else:
                 freq = '1mo'
 
-            self.chart_data(frame, symbol, s_time, e_time, freq)
+            if s_time < first_trade_time or e_time < first_trade_time:
+                tk.messagebox.showinfo(title='First Trade Date',
+                                       message=f'No trades made before {ftd}')
+            else:
+                chart_frame.destroy()
+
+                chart_frame = ttk.Frame(self.ticker_frame)
+                chart_frame.grid(row=3, column=0, columnspan=4)
+                self.chart_data(chart_frame, symbol, s_time, e_time, freq)
 
         # Initial chart
         create_chart()    
@@ -188,19 +231,48 @@ class MainWindow(ttk.Frame):
                                              command=create_chart)
         apply_but.grid(row=1, column=7)                                           
 
-        name_label = ttk.Label(self, text=name)
-        value_label = ttk.Label(self, text=value)
-        value_change_label = ttk.Label(self, text=value_change)
+        name_label = ttk.Label(self.ticker_frame, text=name)
+        value_label = ttk.Label(self.ticker_frame, text=value)
+        value_change_label = ttk.Label(self.ticker_frame, text=value_change)
 
-        name_label.grid(row=1, column=0, sticky='w')
-        value_label.grid(row=2, column=0, sticky='w')
-        value_change_label.grid(row=2, column=0, sticky='ne')
+        name_label.grid(row=0, column=0, sticky='w')
+        value_label.grid(row=1, column=0, sticky='w')
+        value_change_label.grid(row=1, column=0, sticky='ne')
 
         row = 4
         for k,v in summary.items():
-            ttk.Label(self, text=k).grid(row=row, column=0, sticky='w')
-            ttk.Label(self, text=v).grid(row=row, column=1, sticky='w')
+            ttk.Label(self.ticker_frame, text=k).grid(row=row, column=0, sticky='w')
+            ttk.Label(self.ticker_frame, text=v).grid(row=row, column=1, sticky='w')
             row += 1
+
+    # Function to be used in ticker_window
+    def stock_data(self, symbol):
+        
+        session = req.HTMLSession()
+
+        if symbol[0] == '^':
+            # Modified symbol variable without '^'
+            mod_symbol = symbol.replace('^', '')
+            r = session.get(f'https://finance.yahoo.com/quote/%5E{mod_symbol}?p={symbol}')
+        else:
+            r = session.get(f'https://finance.yahoo.com/quote/{symbol}?p={symbol}')
+        
+        company_name = r.html.xpath(us.company_name, first=True).text
+        stock_value = r.html.xpath(us.stock_value, first=True).text
+        value_change = r.html.xpath(us.value_change, first=True).text
+
+        quote_summary = r.html.xpath(us.summary, first=True)
+        summary_list = quote_summary.text.split('\n')
+        
+        if len(summary_list) > 32:
+            summary_list = quote_summary.text.split('\n')[0:32]
+        
+        summary_keys = summary_list[0:len(summary_list):2]
+        summary_values = summary_list[1:len(summary_list):2]
+
+        summary = dict(zip(summary_keys, summary_values))
+
+        return company_name, stock_value, value_change, summary
 
     # from_date and to_date is to be represented as a timestamp
     def chart_data(self, frame, symbol, from_date, to_date, frequency):
@@ -266,52 +338,76 @@ class MainWindow(ttk.Frame):
         toolbar = NavigationToolbar2Tk(canvas, frame, pack_toolbar=False)
         toolbar.update()
         toolbar.pack(side=tk.BOTTOM, fill=tk.X)
-        canvas._tkcanvas.pack()  
+        canvas._tkcanvas.pack()      
 
-    def search_suggestions(self, symbol):
+    # Home page of the program
+    def start_window(self):
         
-        # Destroy all widgets inside TopLevel window
-        for child in self.suggs_window.winfo_children():
-            child.destroy()
+        self.start_frame.destroy()
+        self.start_frame = ttk.Frame(self)
+        self.start_frame.grid(row=1,column=0)
 
-        url = (f'https://query1.finance.yahoo.com/v1/finance/search?q={symbol}&lang=en-'
-              'US&region=US&quotesCount=6&newsCount=4&enableFuzzyQuery=false&'
-              'quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_'
-              'quote_single_token_query&newsQueryId=news_cie_vespa&enableCb='
-              'true&enableNavLinks=true&enableEnhancedTrivialQuery=true')
+        self.top_performers()
 
+    def top_performers(self):
+        
         session = req.HTMLSession()
-        res = session.get(url)
-        page_text = json.loads(res.html.text)
+        r = session.get(us.yh_top_perf)
 
-        # Getting rid of KeyError
-        try:
-            suggestions = page_text['quotes']
-        except KeyError:
-            suggestions = []
+        names = []
+        urls = []
+        images_src = []
+        for n in range(1,7):
+            info = r.html.xpath(
+            '//*[@id="Col1-0-CategoryTable-Proxy"]/section'
+            f'/div[2]/div/div/table/tbody/tr[{n}]/td', first=True)
 
-        suggestions = [item for item in suggestions if item['isYahooFinance'] == True]
+            names.append(info.text)
+            urls.append('https://finance.yahoo.com' +
+                        info.links.pop())
+            
+            img_src = info.find('img', first=True)
+            img_src = img_src.attrs['src']
+            images_src.append(img_src)
+            
+        images = []
+        for img_src in images_src:
+            # turning a bytes representation of an image
+            # into a format usable by ImageTk.PhotoImage 
+            images.append(Image.open(io.BytesIO(session.get(img_src).content)))
 
-        # Dynamically creating labels to display search suggestions
-        n = 0
-        for item in suggestions:
-            # If ticker name is too long, shorten it
-            if len(item['symbol']) > 8:
-                ticker = item['symbol'][0:8] + '...'
-            else:
-                ticker = item['symbol'] 
+        # images to be used in tk widgets
+        tk_images = []
+        for img in images:
+            img.thumbnail((100,100))
+            tk_images.append(ImageTk.PhotoImage(img))
 
-            ttk.Label(self.suggs_window, text=ticker).grid(row=n, column=0)
-            n += 1
+        top0 = ttk.Label(self, text=names[0], image=tk_images[0], compound='right')
+        top0.image = tk_images[0]
+        top0.grid(row=1, column=0)
 
-        self.suggs_window.deiconify()
-        self.search_comp.focus_set()
-        
-        # If search bar is empty, hide window
-        if suggestions == []:
-            self.suggs_window.withdraw()
+        top1 = ttk.Label(self, text=names[1], image=tk_images[1], compound='right')
+        top1.image = tk_images[1]
+        top1.grid(row=1, column=1)
 
-    def stock_news(self):
+        top2 = ttk.Label(self, text=names[2], image=tk_images[2], compound='right')
+        top2.image = tk_images[2]
+        top2.grid(row=1, column=2)
+
+        top3 = ttk.Label(self, text=names[3], image=tk_images[3], compound='right')
+        top3.image = tk_images[3]
+        top3.grid(row=1, column=3)
+
+        top4 = ttk.Label(self, text=names[4], image=tk_images[4], compound='right')
+        top4.image = tk_images[4]
+        top4.grid(row=1, column=4)
+
+        top5 = ttk.Label(self, text=names[5], image=tk_images[5], compound='right')
+        top5.image = tk_images[5]
+        top5.grid(row=1, column=5)
+  
+
+    def news(self):
          
         url = us.investing_news
         session = req.HTMLSession()
@@ -341,7 +437,8 @@ class MainWindow(ttk.Frame):
                
         images = []
         for img_src in images_src:
-            # turning a bytes representation of an image(which we web scraped from the site) into a format usable by ImageTk.PhotoImage  
+            # turning a bytes representation of an image
+            # into a format usable by ImageTk.PhotoImage  
             images.append(Image.open(io.BytesIO(session.get(img_src).content)))
 
         # images to be used in tk widgets
@@ -479,6 +576,7 @@ class MarketTrends(ttk.Frame):
                                                          f'{trend_stock5_change.text} '
                                                          f'{trend_stock5_percent.text}'))
         
+
         # Grid Management
         trend_stock1_label.grid(row=0, column=0)
         trend_stock2_label.grid(row=1, column=0)
