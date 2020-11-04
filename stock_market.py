@@ -347,12 +347,22 @@ class MainWindow(ttk.Frame):
         self.start_frame = ttk.Frame(self)
         self.start_frame.grid(row=1,column=0)
 
-        self.top_performers()
+        self.top_frame = ttk.Frame(self.start_frame)
+        self.worst_frame = ttk.Frame(self.start_frame)
+        self.follow_frame = ttk.Frame(self.start_frame)
 
-    def top_performers(self):
+        self.top_frame.grid(row=1, column=0, columnspan=6)
+        self.worst_frame.grid(row=2, column=0, columnspan=6)
+        self.follow_frame.grid(row=3, column=0, columnspan=6)
+
+        self.get_watchlist(self.top_frame, us.yh_top_perf)
+        self.get_watchlist(self.worst_frame, us.yh_worst_perf)
+        self.get_watchlist(self.follow_frame, us.yh_most_follow)
+
+    def get_watchlist(self, frame, url):
         
         session = req.HTMLSession()
-        r = session.get(us.yh_top_perf)
+        r = session.get(url)
 
         names = []
         urls = []
@@ -379,33 +389,38 @@ class MainWindow(ttk.Frame):
         # images to be used in tk widgets
         tk_images = []
         for img in images:
-            img.thumbnail((100,100))
+            img.thumbnail((200,200))
             tk_images.append(ImageTk.PhotoImage(img))
 
-        top0 = ttk.Label(self, text=names[0], image=tk_images[0], compound='right')
-        top0.image = tk_images[0]
-        top0.grid(row=1, column=0)
+        label0 = ttk.Label(frame, text=names[0], image=tk_images[0], 
+                          compound='center')
+        label0.image = tk_images[0]
+        label0.grid(row=1, column=0)
 
-        top1 = ttk.Label(self, text=names[1], image=tk_images[1], compound='right')
-        top1.image = tk_images[1]
-        top1.grid(row=1, column=1)
+        label1 = ttk.Label(frame, text=names[1], image=tk_images[1], 
+                          compound='center')
+        label1.image = tk_images[1]
+        label1.grid(row=1, column=1)
 
-        top2 = ttk.Label(self, text=names[2], image=tk_images[2], compound='right')
-        top2.image = tk_images[2]
-        top2.grid(row=1, column=2)
+        label2 = ttk.Label(frame, text=names[2], image=tk_images[2], 
+                          compound='center')
+        label2.image = tk_images[2]
+        label2.grid(row=1, column=2)
 
-        top3 = ttk.Label(self, text=names[3], image=tk_images[3], compound='right')
-        top3.image = tk_images[3]
-        top3.grid(row=1, column=3)
+        label3 = ttk.Label(frame, text=names[3], image=tk_images[3], 
+                          compound='center')
+        label3.image = tk_images[3]
+        label3.grid(row=1, column=3)
 
-        top4 = ttk.Label(self, text=names[4], image=tk_images[4], compound='right')
-        top4.image = tk_images[4]
-        top4.grid(row=1, column=4)
+        label4 = ttk.Label(frame, text=names[4], image=tk_images[4], 
+                          compound='center')
+        label4.image = tk_images[4]
+        label4.grid(row=1, column=4)
 
-        top5 = ttk.Label(self, text=names[5], image=tk_images[5], compound='right')
-        top5.image = tk_images[5]
-        top5.grid(row=1, column=5)
-  
+        label5 = ttk.Label(frame, text=names[5], image=tk_images[5], 
+                          compound='center')
+        label5.image = tk_images[5]
+        label5.grid(row=1, column=5)
 
     def news(self):
          
