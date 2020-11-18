@@ -14,7 +14,7 @@ from matplotlib.backends.backend_tkagg import (
     NavigationToolbar2Tk)
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk,font
 
 import urls_and_selectors as us
 
@@ -43,8 +43,7 @@ class MainWindow(ttk.Frame):
 
         self.search_button = ttk.Button(self, text='Search', command=lambda : 
                                        [self.ticker_window(),
-                                       self.search_comp.delete(0,
-                                       len(self.search_comp.get()))])
+                                       self.search_comp.delete(0,tk.END)])
         self.search_button.grid(row=0, column=1, sticky='w')
 
         # Creating a new window to show search_suggestions
@@ -541,6 +540,27 @@ class MarketTrends(ttk.Frame):
 
         self.s = ttk.Style()
 
+        self.s.configure('Value.TLabel', foreground='black',
+                                         width=10, anchor='e')
+        self.s.configure('GrayFont.TLabel', foreground='#5b636a',
+                                            width=10, anchor='e')
+        self.s.configure('Symbol.TLabel', foreground='#5b636a',
+                                            width=10, anchor='w')
+        self.s.configure('NameFont.TLabel', foreground='#5b636a',
+                                            width=40)                                    
+        self.s.configure('Ticker.TLabel', foreground='#0f69ff',
+                                          font='TkDefaultFont 9 bold',
+                                          width=10)
+        self.s.configure('UnderlineTicker.TLabel', foreground='#0f69ff', 
+                                                   font='TkDefaultFont 9 bold underline', 
+                                                   width=10)                              
+        self.s.configure('BoldFont.TLabel', font='TkDefaultFont 15',
+                                            foreground='#3b3830')
+        self.s.configure('PlusChange.TLabel', foreground='#2abf2c',
+                                              width=10, anchor='e')
+        self.s.configure('MinusChange.TLabel', foreground='#ff0000',
+                                               width=10, anchor='e')
+                                               
         self.trending_stocks()
         self.gainers()
         self.losers()
@@ -551,14 +571,19 @@ class MarketTrends(ttk.Frame):
         res = session.get(us.trend_stocks)
 
         trend_frame = ttk.Frame(self)
-
         header_frame = ttk.Frame(trend_frame)
 
-        name = ttk.Label(header_frame, text='Trending Tickers >')
-        symbol = ttk.Label(header_frame, text="Symbol")
-        last_price = ttk.Label(header_frame, text="Last Price")
-        change = ttk.Label(header_frame, text="Change")
-        change_perc = ttk.Label(header_frame, text="% Change")
+        name = ttk.Label(header_frame, text='Trending Tickers >',
+                                       style='BoldFont.TLabel')
+        symbol = ttk.Label(header_frame, text='Symbol',
+                                       style='Symbol.TLabel')
+        last_price = ttk.Label(header_frame, text='Last Price',
+                                       style='GrayFont.TLabel')
+        change = ttk.Label(header_frame, text='Change',
+                                       style='GrayFont.TLabel')
+        change_perc = ttk.Label(header_frame, text='% Change',
+                                       style='GrayFont.TLabel')
+        header_sep = ttk.Separator(header_frame, orient=tk.HORIZONTAL)
 
         trend1_info = ttk.Frame(trend_frame)
         trend2_info = ttk.Frame(trend_frame)
@@ -566,209 +591,429 @@ class MarketTrends(ttk.Frame):
         trend4_info = ttk.Frame(trend_frame)
         trend5_info = ttk.Frame(trend_frame)
 
+        trend_stock1_sep = ttk.Separator(trend_frame, orient=tk.HORIZONTAL)
         trend_stock1 = res.html.xpath(us.trending_stock1, first=True)
         trend_stock1_name = res.html.xpath(us.trending_stock1_name, first=True)
         trend_stock1_value = res.html.xpath(us.trending_stock1_value, first=True)
         trend_stock1_change = res.html.xpath(us.trending_stock1_change, first=True)
         trend_stock1_percent = res.html.xpath(us.trending_stock1_percent, first=True)
-        trend_stock1_label = ttk.Label(trend1_info, text=f'{trend_stock1.text}')
-        trend_stock1_name_label = ttk.Label(trend_frame, text=f'{trend_stock1_name.text}')
-        trend_stock1_value_label = ttk.Label(trend1_info, text=(f'{trend_stock1_value.text} ' 
-                                                          f'{trend_stock1_change.text} '
-                                                          f'{trend_stock1_percent.text}'))
+        trend_stock1_label = ttk.Label(trend1_info, text=f'{trend_stock1.text}',
+                                                    style='Ticker.TLabel')
+        trend_stock1_name_label = ttk.Label(trend_frame, text=f'{trend_stock1_name.text}',
+                                                         style='NameFont.TLabel')
+        trend_stock1_value_label = ttk.Label(trend1_info, text=f'{trend_stock1_value.text}',
+                                                          style='Value.TLabel')
+        trend_stock1_change_label = ttk.Label(trend1_info, text=f'{trend_stock1_change.text}')
+        trend_stock1_percent_label = ttk.Label(trend1_info, text=f'{trend_stock1_percent.text}')
 
+        trend_stock2_sep = ttk.Separator(trend_frame, orient=tk.HORIZONTAL)
         trend_stock2 = res.html.xpath(us.trending_stock2, first=True)
         trend_stock2_name = res.html.xpath(us.trending_stock2_name, first=True) 
         trend_stock2_value = res.html.xpath(us.trending_stock2_value, first=True)
         trend_stock2_change = res.html.xpath(us.trending_stock2_change, first=True)
         trend_stock2_percent = res.html.xpath(us.trending_stock2_percent, first=True)
-        trend_stock2_label = ttk.Label(trend2_info, text=f'{trend_stock2.text}')
-        trend_stock2_name_label = ttk.Label(trend_frame, text=f'{trend_stock2_name.text}')
-        trend_stock2_value_label = ttk.Label(trend2_info, text=(f'{trend_stock2_value.text} '
-                                                          f'{trend_stock2_change.text} '
-                                                          f'{trend_stock2_percent.text}'))
+        trend_stock2_label = ttk.Label(trend2_info, text=f'{trend_stock2.text}',
+                                                    style='Ticker.TLabel')
+        trend_stock2_name_label = ttk.Label(trend_frame, text=f'{trend_stock2_name.text}',
+                                                         style='NameFont.TLabel')
+        trend_stock2_value_label = ttk.Label(trend2_info, text=f'{trend_stock2_value.text}',
+                                                          style='Value.TLabel')
+        trend_stock2_change_label = ttk.Label(trend2_info, text=f'{trend_stock2_change.text}')
+        trend_stock2_percent_label = ttk.Label(trend2_info, text=f'{trend_stock2_percent.text}')
 
+        trend_stock3_sep = ttk.Separator(trend_frame, orient=tk.HORIZONTAL)
         trend_stock3 = res.html.xpath(us.trending_stock3, first=True)
         trend_stock3_name = res.html.xpath(us.trending_stock3_name, first=True)
         trend_stock3_value = res.html.xpath(us.trending_stock3_value, first=True)
         trend_stock3_change = res.html.xpath(us.trending_stock3_change, first=True)
         trend_stock3_percent = res.html.xpath(us.trending_stock3_percent, first=True) 
-        trend_stock3_label = ttk.Label(trend3_info, text=f'{trend_stock3.text}' )
-        trend_stock3_name_label = ttk.Label(trend_frame, text=f'{trend_stock3_name.text}')
-        trend_stock3_value_label = ttk.Label(trend3_info, text=(f'{trend_stock3_value.text} '
-                                                          f'{trend_stock3_change.text} '
-                                                          f'{trend_stock3_percent.text}'))
+        trend_stock3_label = ttk.Label(trend3_info, text=f'{trend_stock3.text}',
+                                                    style='Ticker.TLabel')
+        trend_stock3_name_label = ttk.Label(trend_frame, text=f'{trend_stock3_name.text}',
+                                                         style='NameFont.TLabel')
+        trend_stock3_value_label = ttk.Label(trend3_info, text=f'{trend_stock3_value.text}',
+                                                          style='Value.TLabel')
+        trend_stock3_change_label = ttk.Label(trend3_info, text=f'{trend_stock3_change.text}')
+        trend_stock3_percent_label = ttk.Label(trend3_info, text=f'{trend_stock3_percent.text}')
 
+        trend_stock4_sep = ttk.Separator(trend_frame, orient=tk.HORIZONTAL)
         trend_stock4 = res.html.xpath(us.trending_stock4, first=True)
         trend_stock4_name = res.html.xpath(us.trending_stock4_name, first=True)
         trend_stock4_value = res.html.xpath(us.trending_stock4_value, first=True)
         trend_stock4_change = res.html.xpath(us.trending_stock4_change, first=True)
         trend_stock4_percent = res.html.xpath(us.trending_stock4_percent, first=True) 
-        trend_stock4_label = ttk.Label(trend4_info, text=f'{trend_stock4.text}')
-        trend_stock4_name_label = ttk.Label(trend_frame, text=f'{trend_stock4_name.text}')
-        trend_stock4_value_label = ttk.Label(trend4_info, text=(f'{trend_stock4_value.text} '
-                                                          f'{trend_stock4_change.text} '
-                                                          f'{trend_stock4_percent.text}'))
+        trend_stock4_label = ttk.Label(trend4_info, text=f'{trend_stock4.text}',
+                                                    style='Ticker.TLabel')
+        trend_stock4_name_label = ttk.Label(trend_frame, text=f'{trend_stock4_name.text}',
+                                                         style='NameFont.TLabel')
+        trend_stock4_value_label = ttk.Label(trend4_info, text=f'{trend_stock4_value.text}',
+                                                          style='Value.TLabel')
+        trend_stock4_change_label = ttk.Label(trend4_info, text=f'{trend_stock4_change.text}')
+        trend_stock4_percent_label = ttk.Label(trend4_info, text=f'{trend_stock4_percent.text}')
 
+        trend_stock5_sep = ttk.Separator(trend_frame, orient=tk.HORIZONTAL)
         trend_stock5 = res.html.xpath(us.trending_stock5, first=True)
         trend_stock5_name = res.html.xpath(us.trending_stock5_name, first=True)
         trend_stock5_value = res.html.xpath(us.trending_stock5_value, first=True)
         trend_stock5_change = res.html.xpath(us.trending_stock5_change, first=True)
         trend_stock5_percent = res.html.xpath(us.trending_stock5_percent, first=True)    
-        trend_stock5_label = ttk.Label(trend5_info, text=f'{trend_stock5.text}')
-        trend_stock5_name_label = ttk.Label(trend_frame, text=f'{trend_stock5_name.text}')
-        trend_stock5_value_label = ttk.Label(trend5_info, text=(f'{trend_stock5_value.text} '
-                                                          f'{trend_stock5_change.text} '
-                                                          f'{trend_stock5_percent.text}'))
+        trend_stock5_label = ttk.Label(trend5_info, text=f'{trend_stock5.text}',
+                                                    style='Ticker.TLabel')
+        trend_stock5_name_label = ttk.Label(trend_frame, text=f'{trend_stock5_name.text}',
+                                                         style='NameFont.TLabel')
+        trend_stock5_value_label = ttk.Label(trend5_info, text=f'{trend_stock5_value.text}',
+                                                          style='Value.TLabel')
+        trend_stock5_change_label = ttk.Label(trend5_info, text=f'{trend_stock5_change.text}')
+        trend_stock5_percent_label = ttk.Label(trend5_info, text=f'{trend_stock5_percent.text}')
         
-        # Grid Management
-        trend_frame.grid(row=0, column=0, pady=(20,0))
-
+        # GRID MANAGEMENT
+        trend_frame.grid(row=0, column=0, pady=(40,0),
+                        padx=(20,0), sticky='nesw')
         header_frame.grid(row=0, column=0, columnspan=2,
                          sticky='w')
 
         name.grid(row=0, column=0, columnspan=4, sticky='w')
         symbol.grid(row=1, column=0, sticky='w')
-        last_price.grid(row=1, column=1, sticky='w')
-        change.grid(row=1, column=2, sticky='w')
-        change_perc.grid(row=1, column=3, sticky='w')
-
-        trend1_info.grid(row=1, column=0, columnspan=2, sticky='w')
-        trend2_info.grid(row=3, column=0, columnspan=2, sticky='w')
-        trend3_info.grid(row=5, column=0, columnspan=2, sticky='w')
-        trend4_info.grid(row=7, column=0, columnspan=2, sticky='w')
-        trend5_info.grid(row=9, column=0, columnspan=2, sticky='w')
-
+        last_price.grid(row=1, column=1, sticky='e')
+        change.grid(row=1, column=2, sticky='e')
+        change_perc.grid(row=1, column=3, sticky='e')
+        header_sep.grid(row=2, column=0, columnspan=4, sticky='nesw')
+        
+        # Tickers
         trend_stock1_label.grid(row=0, column=0, sticky='w')
         trend_stock2_label.grid(row=0, column=0, sticky='w')
         trend_stock3_label.grid(row=0, column=0, sticky='w')
         trend_stock4_label.grid(row=0, column=0, sticky='w')
         trend_stock5_label.grid(row=0, column=0, sticky='w')
 
+        # Values and changes
+        trend_stock1_value_label.grid(row=0, column=1, sticky='e')
+        trend_stock1_change_label.grid(row=0, column=2, sticky='e')
+        trend_stock1_percent_label.grid(row=0, column=3, sticky='e')
+        
+        trend_stock2_value_label.grid(row=0, column=1, sticky='e')
+        trend_stock2_change_label.grid(row=0, column=2, sticky='e')
+        trend_stock2_percent_label.grid(row=0, column=3, sticky='e')
+
+        trend_stock3_value_label.grid(row=0, column=1, sticky='e')
+        trend_stock3_change_label.grid(row=0, column=2, sticky='e')
+        trend_stock3_percent_label.grid(row=0, column=3, sticky='e')
+
+        trend_stock4_value_label.grid(row=0, column=1, sticky='e')
+        trend_stock4_change_label.grid(row=0, column=2, sticky='e')
+        trend_stock4_percent_label.grid(row=0, column=3, sticky='e')
+
+        trend_stock5_value_label.grid(row=0, column=1, sticky='e')
+        trend_stock5_change_label.grid(row=0, column=2, sticky='e')
+        trend_stock5_percent_label.grid(row=0, column=3, sticky='e')
+
+        # Setting the styles of each value change
+        if '+' in trend_stock1_change.text:
+            trend_stock1_change_label.configure(style='PlusChange.TLabel')
+            trend_stock1_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            trend_stock1_change_label.configure(style='MinusChange.TLabel')
+            trend_stock1_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in trend_stock2_change.text:
+            trend_stock2_change_label.configure(style='PlusChange.TLabel')
+            trend_stock2_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            trend_stock2_change_label.configure(style='MinusChange.TLabel')
+            trend_stock2_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in trend_stock3_change.text:
+            trend_stock3_change_label.configure(style='PlusChange.TLabel')
+            trend_stock3_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            trend_stock3_change_label.configure(style='MinusChange.TLabel')
+            trend_stock3_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in trend_stock4_change.text:
+            trend_stock4_change_label.configure(style='PlusChange.TLabel')
+            trend_stock4_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            trend_stock4_change_label.configure(style='MinusChange.TLabel')
+            trend_stock4_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in trend_stock5_change.text:
+            trend_stock5_change_label.configure(style='PlusChange.TLabel')
+            trend_stock5_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            trend_stock5_change_label.configure(style='MinusChange.TLabel')
+            trend_stock5_percent_label.configure(style='MinusChange.TLabel')
+
+        # Frames for each stock
+        trend1_info.grid(row=1, column=0, columnspan=4, sticky='w')
+        trend2_info.grid(row=4, column=0, columnspan=4, sticky='w')
+        trend3_info.grid(row=7, column=0, columnspan=4, sticky='w')
+        trend4_info.grid(row=10, column=0, columnspan=4, sticky='w')
+        trend5_info.grid(row=13, column=0, columnspan=4, sticky='w')
+
+        # Company names
         trend_stock1_name_label.grid(row=2, column=0, sticky='sw')
-        trend_stock2_name_label.grid(row=4, column=0, sticky='sw')
-        trend_stock3_name_label.grid(row=6, column=0, sticky='sw')
-        trend_stock4_name_label.grid(row=8, column=0, sticky='sw')
-        trend_stock5_name_label.grid(row=10, column=0, sticky='sw')
+        trend_stock2_name_label.grid(row=5, column=0, sticky='sw')
+        trend_stock3_name_label.grid(row=8, column=0, sticky='sw')
+        trend_stock4_name_label.grid(row=11, column=0, sticky='sw')
+        trend_stock5_name_label.grid(row=14, column=0, sticky='sw')
 
-        trend_stock1_value_label.grid(row=0, column=1, sticky='w')
-        trend_stock2_value_label.grid(row=0, column=1, sticky='w')
-        trend_stock3_value_label.grid(row=0, column=1, sticky='w')
-        trend_stock4_value_label.grid(row=0, column=1, sticky='w')
-        trend_stock5_value_label.grid(row=0, column=1, sticky='w')
+        # Ttk Separators
+        trend_stock1_sep.grid(row=3, column=0, columnspan=4, sticky='nesw')
+        trend_stock2_sep.grid(row=6, column=0, columnspan=4, sticky='nesw')
+        trend_stock3_sep.grid(row=9, column=0, columnspan=4, sticky='nesw')
+        trend_stock4_sep.grid(row=12, column=0, columnspan=4, sticky='nesw')
+        trend_stock5_sep.grid(row=15, column=0, columnspan=4, sticky='nesw')
 
+        # Bindings
+        trend_stock1_label.bind('<Enter>', lambda e:
+                               trend_stock1_label.configure(style='UnderlineTicker.TLabel'))
+        trend_stock1_label.bind('<Leave>', lambda e:
+                               trend_stock1_label.configure(style='Ticker.TLabel'))
+
+        trend_stock2_label.bind('<Enter>', lambda e:
+                               trend_stock2_label.configure(style='UnderlineTicker.TLabel'))
+        trend_stock2_label.bind('<Leave>', lambda e:
+                               trend_stock2_label.configure(style='Ticker.TLabel'))
+
+        trend_stock3_label.bind('<Enter>', lambda e:
+                               trend_stock3_label.configure(style='UnderlineTicker.TLabel'))
+        trend_stock3_label.bind('<Leave>', lambda e:
+                               trend_stock3_label.configure(style='Ticker.TLabel'))
+
+        trend_stock4_label.bind('<Enter>', lambda e:
+                               trend_stock4_label.configure(style='UnderlineTicker.TLabel'))
+        trend_stock4_label.bind('<Leave>', lambda e:
+                               trend_stock4_label.configure(style='Ticker.TLabel'))
+
+        trend_stock5_label.bind('<Enter>', lambda e:
+                               trend_stock5_label.configure(style='UnderlineTicker.TLabel'))
+        trend_stock5_label.bind('<Leave>', lambda e:
+                               trend_stock5_label.configure(style='Ticker.TLabel'))    
+  
     def gainers(self):
 
         session = req.HTMLSession()
         r = session.get('https://finance.yahoo.com/gainers')
 
         gainers_frame = ttk.Frame(self)
-
         header_frame = ttk.Frame(gainers_frame)
 
-        name = ttk.Label(header_frame, text='Stocks:Gainers >')
-        symbol = ttk.Label(header_frame, text="Symbol")
-        last_price = ttk.Label(header_frame, text="Last Price")
-        change = ttk.Label(header_frame, text="Change")
-        change_perc = ttk.Label(header_frame, text="% Change")
+        name = ttk.Label(header_frame, text='Stocks:Gainers >',
+                                       style='BoldFont.TLabel')
+        symbol = ttk.Label(header_frame, text="Symbol",
+                                         style='Symbol.TLabel')
+        last_price = ttk.Label(header_frame, text="Last Price",
+                                             style='GrayFont.TLabel')
+        change = ttk.Label(header_frame, text="Change",
+                                         style='GrayFont.TLabel')
+        change_perc = ttk.Label(header_frame, text="% Change",
+                                              style='GrayFont.TLabel')
+        header_sep = ttk.Separator(header_frame, orient=tk.HORIZONTAL)
 
         gain1_info = ttk.Frame(gainers_frame)
         gain2_info = ttk.Frame(gainers_frame)
         gain3_info = ttk.Frame(gainers_frame)
         gain4_info = ttk.Frame(gainers_frame)
         gain5_info = ttk.Frame(gainers_frame)
-        
+
+        gain_stock1_sep = ttk.Separator(gainers_frame, orient=tk.HORIZONTAL)        
         gain_stock1 = r.html.xpath(us.gainer_stock1, first=True)
         gain_stock1_name = r.html.xpath(us.gainer_stock1_name, first=True)
         gain_stock1_value = r.html.xpath(us.gainer_stock1_value, first=True)
         gain_stock1_change = r.html.xpath(us.gainer_stock1_change, first=True)
         gain_stock1_percent = r.html.xpath(us.gainer_stock1_percent, first=True)
-        gain_stock1_label = ttk.Label(gain1_info, text=f'{gain_stock1.text}')
-        gain_stock1_name_label = ttk.Label(gainers_frame, text=f'{gain_stock1_name.text}')
-        gain_stock1_value_label = ttk.Label(gain1_info, text=(f'{gain_stock1_value.text} ' 
-                                                        f'{gain_stock1_change.text} '
-                                                        f'{gain_stock1_percent.text}'))
+        gain_stock1_label = ttk.Label(gain1_info, text=f'{gain_stock1.text}',
+                                                  style='Ticker.TLabel')
+        gain_stock1_name_label = ttk.Label(gainers_frame, text=f'{gain_stock1_name.text}',
+                                                          style='NameFont.TLabel')
+        gain_stock1_value_label = ttk.Label(gain1_info, text=f'{gain_stock1_value.text}',
+                                                        style='Value.TLabel')
+        gain_stock1_change_label = ttk.Label(gain1_info, text=f'{gain_stock1_change.text}')
+        gain_stock1_percent_label = ttk.Label(gain1_info, text=f'{gain_stock1_percent.text}')
 
+        gain_stock2_sep = ttk.Separator(gainers_frame, orient=tk.HORIZONTAL)
         gain_stock2 = r.html.xpath(us.gainer_stock2, first=True)
         gain_stock2_name = r.html.xpath(us.gainer_stock2_name, first=True) 
         gain_stock2_value = r.html.xpath(us.gainer_stock2_value, first=True)
         gain_stock2_change = r.html.xpath(us.gainer_stock2_change, first=True)
         gain_stock2_percent = r.html.xpath(us.gainer_stock2_percent, first=True)
-        gain_stock2_label = ttk.Label(gain2_info, text=f'{gain_stock2.text}')
-        gain_stock2_name_label = ttk.Label(gainers_frame, text=f'{gain_stock2_name.text}')
-        gain_stock2_value_label = ttk.Label(gain2_info, text=(f'{gain_stock2_value.text} '
-                                                        f'{gain_stock2_change.text} '
-                                                        f'{gain_stock2_percent.text}'))
+        gain_stock2_label = ttk.Label(gain2_info, text=f'{gain_stock2.text}',
+                                                  style='Ticker.TLabel')
+        gain_stock2_name_label = ttk.Label(gainers_frame, text=f'{gain_stock2_name.text}',
+                                                          style='NameFont.TLabel')
+        gain_stock2_value_label = ttk.Label(gain2_info, text=f'{gain_stock2_value.text}',
+                                                        style='Value.TLabel')
+        gain_stock2_change_label = ttk.Label(gain2_info, text=f'{gain_stock2_change.text}')
+        gain_stock2_percent_label = ttk.Label(gain2_info, text=f'{gain_stock2_percent.text}')
 
+        gain_stock3_sep = ttk.Separator(gainers_frame, orient=tk.HORIZONTAL)
         gain_stock3 = r.html.xpath(us.gainer_stock3, first=True)
         gain_stock3_name = r.html.xpath(us.gainer_stock3_name, first=True)
         gain_stock3_value = r.html.xpath(us.gainer_stock3_value, first=True)
         gain_stock3_change = r.html.xpath(us.gainer_stock3_change, first=True)
         gain_stock3_percent = r.html.xpath(us.gainer_stock3_percent, first=True) 
-        gain_stock3_label = ttk.Label(gain3_info, text=f'{gain_stock3.text}' )
-        gain_stock3_name_label = ttk.Label(gainers_frame, text=f'{gain_stock3_name.text}' )
-        gain_stock3_value_label = ttk.Label(gain3_info, text=(f'{gain_stock3_value.text} '
-                                                        f'{gain_stock3_change.text} '
-                                                        f'{gain_stock3_percent.text}'))
+        gain_stock3_label = ttk.Label(gain3_info, text=f'{gain_stock3.text}',
+                                                  style='Ticker.TLabel')
+        gain_stock3_name_label = ttk.Label(gainers_frame, text=f'{gain_stock3_name.text}',
+                                                          style='NameFont.TLabel')
+        gain_stock3_value_label = ttk.Label(gain3_info, text=f'{gain_stock3_value.text}',
+                                                        style='Value.TLabel')
+        gain_stock3_change_label = ttk.Label(gain3_info, text=f'{gain_stock3_change.text}')
+        gain_stock3_percent_label = ttk.Label(gain3_info, text=f'{gain_stock3_percent.text}')
 
+        gain_stock4_sep = ttk.Separator(gainers_frame, orient=tk.HORIZONTAL)
         gain_stock4 = r.html.xpath(us.gainer_stock4, first=True)
         gain_stock4_name = r.html.xpath(us.gainer_stock4_name, first=True)
         gain_stock4_value = r.html.xpath(us.gainer_stock4_value, first=True)
         gain_stock4_change = r.html.xpath(us.gainer_stock4_change, first=True)
         gain_stock4_percent = r.html.xpath(us.gainer_stock4_percent, first=True) 
-        gain_stock4_label = ttk.Label(gain4_info, text=f'{gain_stock4.text}')
-        gain_stock4_name_label = ttk.Label(gainers_frame, text=f'{gain_stock4_name.text}')
-        gain_stock4_value_label = ttk.Label(gain4_info, text=(f'{gain_stock4_value.text} '
-                                                        f'{gain_stock4_change.text} '
-                                                        f'{gain_stock4_percent.text}'))
+        gain_stock4_label = ttk.Label(gain4_info, text=f'{gain_stock4.text}',
+                                                  style='Ticker.TLabel')
+        gain_stock4_name_label = ttk.Label(gainers_frame, text=f'{gain_stock4_name.text}',
+                                                          style='NameFont.TLabel')
+        gain_stock4_value_label = ttk.Label(gain4_info, text=f'{gain_stock4_value.text}',
+                                                        style='Value.TLabel')
+        gain_stock4_change_label = ttk.Label(gain4_info, text=f'{gain_stock4_change.text}')
+        gain_stock4_percent_label = ttk.Label(gain4_info, text=f'{gain_stock4_percent.text}')
 
+        gain_stock5_sep = ttk.Separator(gainers_frame, orient=tk.HORIZONTAL)
         gain_stock5 = r.html.xpath(us.gainer_stock5, first=True)
         gain_stock5_name = r.html.xpath(us.gainer_stock5_name, first=True)
         gain_stock5_value = r.html.xpath(us.gainer_stock5_value, first=True)
         gain_stock5_change = r.html.xpath(us.gainer_stock5_change, first=True)
         gain_stock5_percent = r.html.xpath(us.gainer_stock5_percent, first=True)    
-        gain_stock5_label = ttk.Label(gain5_info, text=f'{gain_stock5.text}')
-        gain_stock5_name_label = ttk.Label(gainers_frame, text=f'{gain_stock5_name.text}')
-        gain_stock5_value_label = ttk.Label(gain5_info, text=(f'{gain_stock5_value.text} '
-                                                        f'{gain_stock5_change.text} '
-                                                        f'{gain_stock5_percent.text}'))
+        gain_stock5_label = ttk.Label(gain5_info, text=f'{gain_stock5.text}',
+                                                  style='Ticker.TLabel')
+        gain_stock5_name_label = ttk.Label(gainers_frame, text=f'{gain_stock5_name.text}',
+                                                          style='NameFont.TLabel')
+        gain_stock5_value_label = ttk.Label(gain5_info, text=f'{gain_stock5_value.text}',
+                                                        style='Value.TLabel')
+        gain_stock5_change_label = ttk.Label(gain5_info, text=f'{gain_stock5_change.text}')
+        gain_stock5_percent_label = ttk.Label(gain5_info, text=f'{gain_stock5_percent.text}')
         
-        # Grid Management
-        gainers_frame.grid(row=1, column=0, pady=(20,0),
-                          sticky='w')
-
+        # GRID MANAGEMENT
+        gainers_frame.grid(row=1, column=0, pady=(40,0),
+                          padx=(20,0), sticky='nesw')
         header_frame.grid(row=0, column=0, columnspan=2,
                          sticky='w')
 
         name.grid(row=0, column=0, columnspan=4, sticky='w')
         symbol.grid(row=1, column=0, sticky='w')
-        last_price.grid(row=1, column=1, sticky='w')
-        change.grid(row=1, column=2, sticky='w')
-        change_perc.grid(row=1, column=3, sticky='w')
+        last_price.grid(row=1, column=1, sticky='e')
+        change.grid(row=1, column=2, sticky='e')
+        change_perc.grid(row=1, column=3, sticky='e')
+        header_sep.grid(row=2, column=0, columnspan=4, sticky='nesw')
 
-        gain1_info.grid(row=1, column=0, columnspan=2, sticky='w')
-        gain2_info.grid(row=3, column=0, columnspan=2, sticky='w')
-        gain3_info.grid(row=5, column=0, columnspan=2, sticky='w')
-        gain4_info.grid(row=7, column=0, columnspan=2, sticky='w')
-        gain5_info.grid(row=9, column=0, columnspan=2, sticky='w')
-
+        # Tickers
         gain_stock1_label.grid(row=0, column=0, sticky='w')
         gain_stock2_label.grid(row=0, column=0, sticky='w')
         gain_stock3_label.grid(row=0, column=0, sticky='w')
         gain_stock4_label.grid(row=0, column=0, sticky='w')
         gain_stock5_label.grid(row=0, column=0, sticky='w')
+        
+        # Values and changes
+        gain_stock1_value_label.grid(row=0, column=1, sticky='e')
+        gain_stock1_change_label.grid(row=0, column=2, sticky='e')
+        gain_stock1_percent_label.grid(row=0, column=3, sticky='e')
+        
+        gain_stock2_value_label.grid(row=0, column=1, sticky='e')
+        gain_stock2_change_label.grid(row=0, column=2, sticky='e')
+        gain_stock2_percent_label.grid(row=0, column=3, sticky='e')
 
+        gain_stock3_value_label.grid(row=0, column=1, sticky='e')
+        gain_stock3_change_label.grid(row=0, column=2, sticky='e')
+        gain_stock3_percent_label.grid(row=0, column=3, sticky='e')
+
+        gain_stock4_value_label.grid(row=0, column=1, sticky='e')
+        gain_stock4_change_label.grid(row=0, column=2, sticky='e')
+        gain_stock4_percent_label.grid(row=0, column=3, sticky='e')
+
+        gain_stock5_value_label.grid(row=0, column=1, sticky='e')
+        gain_stock5_change_label.grid(row=0, column=2, sticky='e')
+        gain_stock5_percent_label.grid(row=0, column=3, sticky='e')
+
+        # Setting the styles of each value change
+        if '+' in gain_stock1_change.text:
+            gain_stock1_change_label.configure(style='PlusChange.TLabel')
+            gain_stock1_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            gain_stock1_change_label.configure(style='MinusChange.TLabel')
+            gain_stock1_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in gain_stock2_change.text:
+            gain_stock2_change_label.configure(style='PlusChange.TLabel')
+            gain_stock2_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            gain_stock2_change_label.configure(style='MinusChange.TLabel')
+            gain_stock2_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in gain_stock3_change.text:
+            gain_stock3_change_label.configure(style='PlusChange.TLabel')
+            gain_stock3_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            gain_stock3_change_label.configure(style='MinusChange.TLabel')
+            gain_stock3_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in gain_stock4_change.text:
+            gain_stock4_change_label.configure(style='PlusChange.TLabel')
+            gain_stock4_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            gain_stock4_change_label.configure(style='MinusChange.TLabel')
+            gain_stock4_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in gain_stock5_change.text:
+            gain_stock5_change_label.configure(style='PlusChange.TLabel')
+            gain_stock5_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            gain_stock5_change_label.configure(style='MinusChange.TLabel')
+            gain_stock5_percent_label.configure(style='MinusChange.TLabel')
+
+        # Frames for each stock
+        gain1_info.grid(row=1, column=0, columnspan=4, sticky='w')
+        gain2_info.grid(row=4, column=0, columnspan=4, sticky='w')
+        gain3_info.grid(row=7, column=0, columnspan=4, sticky='w')
+        gain4_info.grid(row=10, column=0, columnspan=4, sticky='w')
+        gain5_info.grid(row=13, column=0, columnspan=4, sticky='w')
+
+        # Company names
         gain_stock1_name_label.grid(row=2, column=0, sticky='sw')
-        gain_stock2_name_label.grid(row=4, column=0, sticky='sw')
-        gain_stock3_name_label.grid(row=6, column=0, sticky='sw')
-        gain_stock4_name_label.grid(row=8, column=0, sticky='sw')
-        gain_stock5_name_label.grid(row=10, column=0, sticky='sw')
+        gain_stock2_name_label.grid(row=5, column=0, sticky='sw')
+        gain_stock3_name_label.grid(row=8, column=0, sticky='sw')
+        gain_stock4_name_label.grid(row=11, column=0, sticky='sw')
+        gain_stock5_name_label.grid(row=14, column=0, sticky='sw')
 
-        gain_stock1_value_label.grid(row=0, column=1, sticky='w')
-        gain_stock2_value_label.grid(row=0, column=1, sticky='w')
-        gain_stock3_value_label.grid(row=0, column=1, sticky='w')
-        gain_stock4_value_label.grid(row=0, column=1, sticky='w')
-        gain_stock5_value_label.grid(row=0, column=1, sticky='w')
+        # Ttk Separators
+        gain_stock1_sep.grid(row=3, column=0, columnspan=4, sticky='nesw')
+        gain_stock2_sep.grid(row=6, column=0, columnspan=4, sticky='nesw')
+        gain_stock3_sep.grid(row=9, column=0, columnspan=4, sticky='nesw')
+        gain_stock4_sep.grid(row=12, column=0, columnspan=4, sticky='nesw')
+        gain_stock5_sep.grid(row=15, column=0, columnspan=4, sticky='nesw')
+
+        # Bindings
+        gain_stock1_label.bind('<Enter>', lambda e:
+                               gain_stock1_label.configure(style='UnderlineTicker.TLabel'))
+        gain_stock1_label.bind('<Leave>', lambda e:
+                               gain_stock1_label.configure(style='Ticker.TLabel'))
+
+        gain_stock2_label.bind('<Enter>', lambda e:
+                               gain_stock2_label.configure(style='UnderlineTicker.TLabel'))
+        gain_stock2_label.bind('<Leave>', lambda e:
+                               gain_stock2_label.configure(style='Ticker.TLabel'))
+
+        gain_stock3_label.bind('<Enter>', lambda e:
+                               gain_stock3_label.configure(style='UnderlineTicker.TLabel'))
+        gain_stock3_label.bind('<Leave>', lambda e:
+                               gain_stock3_label.configure(style='Ticker.TLabel'))
+
+        gain_stock4_label.bind('<Enter>', lambda e:
+                               gain_stock4_label.configure(style='UnderlineTicker.TLabel'))
+        gain_stock4_label.bind('<Leave>', lambda e:
+                               gain_stock4_label.configure(style='Ticker.TLabel'))
+
+        gain_stock5_label.bind('<Enter>', lambda e:
+                               gain_stock5_label.configure(style='UnderlineTicker.TLabel'))
+        gain_stock5_label.bind('<Leave>', lambda e:
+                               gain_stock5_label.configure(style='Ticker.TLabel'))
 
     def losers(self):
 
@@ -776,116 +1021,230 @@ class MarketTrends(ttk.Frame):
         r = session.get('https://finance.yahoo.com/losers')
 
         losers_frame = ttk.Frame(self)
-
         header_frame = ttk.Frame(losers_frame)
 
-        name = ttk.Label(header_frame, text='Stocks:Losers >')
-        symbol = ttk.Label(header_frame, text="Symbol")
-        last_price = ttk.Label(header_frame, text="Last Price")
-        change = ttk.Label(header_frame, text="Change")
-        change_perc = ttk.Label(header_frame, text="% Change")
+        name = ttk.Label(header_frame, text='Stocks:Losers >',
+                                       style='BoldFont.TLabel')
+        symbol = ttk.Label(header_frame, text="Symbol",
+                                         style='Symbol.TLabel')
+        last_price = ttk.Label(header_frame, text="Last Price",
+                                             style='GrayFont.TLabel')
+        change = ttk.Label(header_frame, text="Change",
+                                         style='GrayFont.TLabel')
+        change_perc = ttk.Label(header_frame, text="% Change",
+                                              style='GrayFont.TLabel')
+        header_sep = ttk.Separator(header_frame, orient=tk.HORIZONTAL)
 
         lose1_info = ttk.Frame(losers_frame)
         lose2_info = ttk.Frame(losers_frame)
         lose3_info = ttk.Frame(losers_frame)
         lose4_info = ttk.Frame(losers_frame)
         lose5_info = ttk.Frame(losers_frame)
-        
+
+        lose_stock1_sep = ttk.Separator(losers_frame, orient=tk.HORIZONTAL)        
         lose_stock1 = r.html.xpath(us.loser_stock1, first=True)
         lose_stock1_name = r.html.xpath(us.loser_stock1_name, first=True)
         lose_stock1_value = r.html.xpath(us.loser_stock1_value, first=True)
         lose_stock1_change = r.html.xpath(us.loser_stock1_change, first=True)
         lose_stock1_percent = r.html.xpath(us.loser_stock1_percent, first=True)
-        lose_stock1_label = ttk.Label(lose1_info, text=f'{lose_stock1.text}')
-        lose_stock1_name_label = ttk.Label(losers_frame, text=f'{lose_stock1_name.text}')
-        lose_stock1_value_label = ttk.Label(lose1_info, text=(f'{lose_stock1_value.text} ' 
-                                                        f'{lose_stock1_change.text} '
-                                                        f'{lose_stock1_percent.text}'))
+        lose_stock1_label = ttk.Label(lose1_info, text=f'{lose_stock1.text}',
+                                                  style='Ticker.TLabel')
+        lose_stock1_name_label = ttk.Label(losers_frame, text=f'{lose_stock1_name.text}',
+                                                         style='NameFont.TLabel')
+        lose_stock1_value_label = ttk.Label(lose1_info, text=f'{lose_stock1_value.text}',
+                                                        style='Value.TLabel')
+        lose_stock1_change_label = ttk.Label(lose1_info, text=f'{lose_stock1_change.text}')
+        lose_stock1_percent_label = ttk.Label(lose1_info, text=f'{lose_stock1_percent.text}')
 
+        lose_stock2_sep = ttk.Separator(losers_frame, orient=tk.HORIZONTAL)
         lose_stock2 = r.html.xpath(us.loser_stock2, first=True)
         lose_stock2_name = r.html.xpath(us.loser_stock2_name, first=True) 
         lose_stock2_value = r.html.xpath(us.loser_stock2_value, first=True)
         lose_stock2_change = r.html.xpath(us.loser_stock2_change, first=True)
         lose_stock2_percent = r.html.xpath(us.loser_stock2_percent, first=True)
-        lose_stock2_label = ttk.Label(lose2_info, text=f'{lose_stock2.text}')
-        lose_stock2_name_label = ttk.Label(losers_frame, text=f'{lose_stock2_name.text}')
-        lose_stock2_value_label = ttk.Label(lose2_info, text=(f'{lose_stock2_value.text} '
-                                                        f'{lose_stock2_change.text} '
-                                                        f'{lose_stock2_percent.text}'))
+        lose_stock2_label = ttk.Label(lose2_info, text=f'{lose_stock2.text}',
+                                                  style='Ticker.TLabel')
+        lose_stock2_name_label = ttk.Label(losers_frame, text=f'{lose_stock2_name.text}',
+                                                         style='NameFont.TLabel')
+        lose_stock2_value_label = ttk.Label(lose2_info, text=f'{lose_stock2_value.text}',
+                                                        style='Value.TLabel')
+        lose_stock2_change_label = ttk.Label(lose2_info, text=f'{lose_stock2_change.text}')
+        lose_stock2_percent_label = ttk.Label(lose2_info, text=f'{lose_stock2_percent.text}')
 
+        lose_stock3_sep = ttk.Separator(losers_frame, orient=tk.HORIZONTAL)
         lose_stock3 = r.html.xpath(us.loser_stock3, first=True)
         lose_stock3_name = r.html.xpath(us.loser_stock3_name, first=True)
         lose_stock3_value = r.html.xpath(us.loser_stock3_value, first=True)
         lose_stock3_change = r.html.xpath(us.loser_stock3_change, first=True)
         lose_stock3_percent = r.html.xpath(us.loser_stock3_percent, first=True) 
-        lose_stock3_label = ttk.Label(lose3_info, text=f'{lose_stock3.text}')
-        lose_stock3_name_label = ttk.Label(losers_frame, text=f'{lose_stock3_name.text}')
-        lose_stock3_value_label = ttk.Label(lose3_info, text=(f'{lose_stock3_value.text} '
-                                                        f'{lose_stock3_change.text} '
-                                                        f'{lose_stock3_percent.text}'))
+        lose_stock3_label = ttk.Label(lose3_info, text=f'{lose_stock3.text}',
+                                                  style='Ticker.TLabel')
+        lose_stock3_name_label = ttk.Label(losers_frame, text=f'{lose_stock3_name.text}',
+                                                         style='NameFont.TLabel')
+        lose_stock3_value_label = ttk.Label(lose3_info, text=f'{lose_stock3_value.text}',
+                                                        style='Value.TLabel')
+        lose_stock3_change_label = ttk.Label(lose3_info, text=f'{lose_stock3_change.text}')
+        lose_stock3_percent_label = ttk.Label(lose3_info, text=f'{lose_stock3_percent.text}')
 
+        lose_stock4_sep = ttk.Separator(losers_frame, orient=tk.HORIZONTAL)
         lose_stock4 = r.html.xpath(us.loser_stock4, first=True)
         lose_stock4_name = r.html.xpath(us.loser_stock4_name, first=True)
         lose_stock4_value = r.html.xpath(us.loser_stock4_value, first=True)
         lose_stock4_change = r.html.xpath(us.loser_stock4_change, first=True)
         lose_stock4_percent = r.html.xpath(us.loser_stock4_percent, first=True) 
-        lose_stock4_label = ttk.Label(lose4_info, text=f'{lose_stock4.text}')
-        lose_stock4_name_label = ttk.Label(losers_frame, text=f'{lose_stock4_name.text}')
-        lose_stock4_value_label = ttk.Label(lose4_info, text=(f'{lose_stock4_value.text} '
-                                                        f'{lose_stock4_change.text} '
-                                                        f'{lose_stock4_percent.text}'))
+        lose_stock4_label = ttk.Label(lose4_info, text=f'{lose_stock4.text}',
+                                                  style='Ticker.TLabel')
+        lose_stock4_name_label = ttk.Label(losers_frame, text=f'{lose_stock4_name.text}',
+                                                         style='NameFont.TLabel')
+        lose_stock4_value_label = ttk.Label(lose4_info, text=f'{lose_stock4_value.text}',
+                                                        style='Value.TLabel')
+        lose_stock4_change_label = ttk.Label(lose4_info, text=f'{lose_stock4_change.text}')
+        lose_stock4_percent_label = ttk.Label(lose4_info, text=f'{lose_stock4_percent.text}')
 
+        lose_stock5_sep = ttk.Separator(losers_frame, orient=tk.HORIZONTAL)
         lose_stock5 = r.html.xpath(us.loser_stock5, first=True)
         lose_stock5_name = r.html.xpath(us.loser_stock5_name, first=True)
         lose_stock5_value = r.html.xpath(us.loser_stock5_value, first=True)
         lose_stock5_change = r.html.xpath(us.loser_stock5_change, first=True)
         lose_stock5_percent = r.html.xpath(us.loser_stock5_percent, first=True)    
-        lose_stock5_label = ttk.Label(lose5_info, text=f'{lose_stock5.text}')
-        lose_stock5_name_label = ttk.Label(losers_frame, text=f'{lose_stock5_name.text}')
-        lose_stock5_value_label = ttk.Label(lose5_info, text=(f'{lose_stock5_value.text} '
-                                                        f'{lose_stock5_change.text} '
-                                                        f'{lose_stock5_percent.text}'))
+        lose_stock5_label = ttk.Label(lose5_info, text=f'{lose_stock5.text}',
+                                                  style='Ticker.TLabel')
+        lose_stock5_name_label = ttk.Label(losers_frame, text=f'{lose_stock5_name.text}',
+                                                         style='NameFont.TLabel')
+        lose_stock5_value_label = ttk.Label(lose5_info, text=f'{lose_stock5_value.text}',
+                                                        style='Value.TLabel')
+        lose_stock5_change_label = ttk.Label(lose5_info, text=f'{lose_stock5_change.text}')
+        lose_stock5_percent_label = ttk.Label(lose5_info, text=f'{lose_stock5_percent.text}')
         
-        # Grid Management
-        losers_frame.grid(row=2, column=0, pady=(20,0),
-                          sticky='w')
-
-        header_frame.grid(row=0, column=0, columnspan=2,
+        # GRID MANAGEMENT
+        losers_frame.grid(row=2, column=0, pady=(40,0),
+                         padx=(20,0), sticky='nesw')
+        header_frame.grid(row=0, column=0, columnspan=4,
                          sticky='w')
 
         name.grid(row=0, column=0, columnspan=4, sticky='w')
         symbol.grid(row=1, column=0, sticky='w')
-        last_price.grid(row=1, column=1, sticky='w')
-        change.grid(row=1, column=2, sticky='w')
-        change_perc.grid(row=1, column=3, sticky='w')
+        last_price.grid(row=1, column=1, sticky='e')
+        change.grid(row=1, column=2, sticky='e')
+        change_perc.grid(row=1, column=3, sticky='e')
+        header_sep.grid(row=2, column=0, columnspan=4, sticky='nesw')
 
-        lose1_info.grid(row=1, column=0, columnspan=2, sticky='w')
-        lose2_info.grid(row=3, column=0, columnspan=2, sticky='w')
-        lose3_info.grid(row=5, column=0, columnspan=2, sticky='w')
-        lose4_info.grid(row=7, column=0, columnspan=2, sticky='w')
-        lose5_info.grid(row=9, column=0, columnspan=2, sticky='w')
-
+        # Tickers
         lose_stock1_label.grid(row=0, column=0, sticky='w')
         lose_stock2_label.grid(row=0, column=0, sticky='w')
         lose_stock3_label.grid(row=0, column=0, sticky='w')
         lose_stock4_label.grid(row=0, column=0, sticky='w')
         lose_stock5_label.grid(row=0, column=0, sticky='w')
+        
+        # Values and changes
+        lose_stock1_value_label.grid(row=0, column=1, sticky='e')
+        lose_stock1_change_label.grid(row=0, column=2, sticky='e')
+        lose_stock1_percent_label.grid(row=0, column=3, sticky='e')
+        
+        lose_stock2_value_label.grid(row=0, column=1, sticky='e')
+        lose_stock2_change_label.grid(row=0, column=2, sticky='e')
+        lose_stock2_percent_label.grid(row=0, column=3, sticky='e')
 
+        lose_stock3_value_label.grid(row=0, column=1, sticky='e')
+        lose_stock3_change_label.grid(row=0, column=2, sticky='e')
+        lose_stock3_percent_label.grid(row=0, column=3, sticky='e')
+
+        lose_stock4_value_label.grid(row=0, column=1, sticky='e')
+        lose_stock4_change_label.grid(row=0, column=2, sticky='e')
+        lose_stock4_percent_label.grid(row=0, column=3, sticky='e')
+
+        lose_stock5_value_label.grid(row=0, column=1, sticky='e')
+        lose_stock5_change_label.grid(row=0, column=2, sticky='e')
+        lose_stock5_percent_label.grid(row=0, column=3, sticky='e')
+
+        # Setting the styles of each value change
+        if '+' in lose_stock1_change.text:
+            lose_stock1_change_label.configure(style='PlusChange.TLabel')
+            lose_stock1_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            lose_stock1_change_label.configure(style='MinusChange.TLabel')
+            lose_stock1_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in lose_stock2_change.text:
+            lose_stock2_change_label.configure(style='PlusChange.TLabel')
+            lose_stock2_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            lose_stock2_change_label.configure(style='MinusChange.TLabel')
+            lose_stock2_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in lose_stock3_change.text:
+            lose_stock3_change_label.configure(style='PlusChange.TLabel')
+            lose_stock3_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            lose_stock3_change_label.configure(style='MinusChange.TLabel')
+            lose_stock3_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in lose_stock4_change.text:
+            lose_stock4_change_label.configure(style='PlusChange.TLabel')
+            lose_stock4_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            lose_stock4_change_label.configure(style='MinusChange.TLabel')
+            lose_stock4_percent_label.configure(style='MinusChange.TLabel')
+
+        if '+' in lose_stock5_change.text:
+            lose_stock5_change_label.configure(style='PlusChange.TLabel')
+            lose_stock5_percent_label.configure(style='PlusChange.TLabel') 
+        else:
+            lose_stock5_change_label.configure(style='MinusChange.TLabel')
+            lose_stock5_percent_label.configure(style='MinusChange.TLabel')
+
+        # Frames for eack stock
+        lose1_info.grid(row=1, column=0, columnspan=4, sticky='w')
+        lose2_info.grid(row=4, column=0, columnspan=4, sticky='w')
+        lose3_info.grid(row=7, column=0, columnspan=4, sticky='w')
+        lose4_info.grid(row=10, column=0, columnspan=4, sticky='w')
+        lose5_info.grid(row=13, column=0, columnspan=4, sticky='w')        
+
+        # Company names
         lose_stock1_name_label.grid(row=2, column=0, sticky='sw')
-        lose_stock2_name_label.grid(row=4, column=0, sticky='sw')
-        lose_stock3_name_label.grid(row=6, column=0, sticky='sw')
-        lose_stock4_name_label.grid(row=8, column=0, sticky='sw')
-        lose_stock5_name_label.grid(row=10, column=0, sticky='sw')
+        lose_stock2_name_label.grid(row=5, column=0, sticky='sw')
+        lose_stock3_name_label.grid(row=8, column=0, sticky='sw')
+        lose_stock4_name_label.grid(row=11, column=0, sticky='sw')
+        lose_stock5_name_label.grid(row=14, column=0, sticky='sw')
 
-        lose_stock1_value_label.grid(row=0, column=1, sticky='w')
-        lose_stock2_value_label.grid(row=0, column=1, sticky='w')
-        lose_stock3_value_label.grid(row=0, column=1, sticky='w')
-        lose_stock4_value_label.grid(row=0, column=1, sticky='w')
-        lose_stock5_value_label.grid(row=0, column=1, sticky='w')
+        # Ttk separators
+        lose_stock1_sep.grid(row=3, column=0, columnspan=4, sticky='nesw')        
+        lose_stock2_sep.grid(row=6, column=0, columnspan=4, sticky='nesw')        
+        lose_stock3_sep.grid(row=9, column=0, columnspan=4, sticky='nesw')        
+        lose_stock4_sep.grid(row=12, column=0, columnspan=4, sticky='nesw')        
+        lose_stock5_sep.grid(row=15, column=0, columnspan=4, sticky='nesw')
 
+        # Bindings
+        lose_stock1_label.bind('<Enter>', lambda e:
+                               lose_stock1_label.configure(style='UnderlineTicker.TLabel'))
+        lose_stock1_label.bind('<Leave>', lambda e:
+                               lose_stock1_label.configure(style='Ticker.TLabel'))
+
+        lose_stock2_label.bind('<Enter>', lambda e:
+                               lose_stock2_label.configure(style='UnderlineTicker.TLabel'))
+        lose_stock2_label.bind('<Leave>', lambda e:
+                               lose_stock2_label.configure(style='Ticker.TLabel'))
+
+        lose_stock3_label.bind('<Enter>', lambda e:
+                               lose_stock3_label.configure(style='UnderlineTicker.TLabel'))
+        lose_stock3_label.bind('<Leave>', lambda e:
+                               lose_stock3_label.configure(style='Ticker.TLabel'))
+
+        lose_stock4_label.bind('<Enter>', lambda e:
+                               lose_stock4_label.configure(style='UnderlineTicker.TLabel'))
+        lose_stock4_label.bind('<Leave>', lambda e:
+                               lose_stock4_label.configure(style='Ticker.TLabel'))
+
+        lose_stock5_label.bind('<Enter>', lambda e:
+                               lose_stock5_label.configure(style='UnderlineTicker.TLabel'))
+        lose_stock5_label.bind('<Leave>', lambda e:
+                               lose_stock5_label.configure(style='Ticker.TLabel'))
+        
 def main():
     root = tk.Tk()
     root.state('zoomed')
+
+    s = ttk.Style()
 
     main_window = MainWindow(root)
     market_trends = MarketTrends(root)
