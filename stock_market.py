@@ -4,7 +4,8 @@ import webbrowser
 import datetime as dt
 import requests_html as req
 from string import Template
-from PIL import Image, ImageTk
+from PIL import (Image, ImageTk,
+                ImageEnhance)
 
 import pandas as pd
 import seaborn as sns
@@ -14,7 +15,7 @@ from matplotlib.backends.backend_tkagg import (
     NavigationToolbar2Tk)
 
 import tkinter as tk
-from tkinter import ttk,font
+from tkinter import ttk
 
 import urls_and_selectors as us
 
@@ -31,7 +32,7 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
-        self.s.configure('Watchlist.TLabel', font='TkDefaultFont 10 bold', 
+        self.s.configure('Watchlist.TLabel', font='TkDefaultFont 12 bold', 
                                              foreground='white',
                                              width=20,
                                              wraplength=120)
@@ -394,8 +395,12 @@ class MainWindow(ttk.Frame):
         images = []
         for img_src in images_src:
             # turning a bytes representation of an image
-            # into a format usable by ImageTk.PhotoImage 
-            images.append(Image.open(io.BytesIO(session.get(img_src).content)))
+            # into a format usable by ImageTk.PhotoImage
+            # also making the image darker 
+            im = Image.open(io.BytesIO(session.get(img_src).content))
+            en = ImageEnhance.Brightness(im)
+            im_dark = en.enhance(0.70)
+            images.append(im_dark)
 
         # images to be used in tk widgets
         tk_images = []
@@ -550,23 +555,25 @@ class MarketTrends(ttk.Frame):
         self.s.configure('GrayFont.TLabel', foreground='#5b636a',
                                             width=10, anchor='e')
         self.s.configure('Symbol.TLabel', foreground='#5b636a',
-                                            width=10, anchor='w')
+                                          width=10, anchor='w', 
+                                          font='TkDefaultFont 9')
         self.s.configure('NameFont.TLabel', foreground='#5b636a',
-                                            width=40)                                    
-        self.s.configure('Ticker.TLabel', foreground='#0f69ff',
-                                          font='TkDefaultFont 9 bold',
-                                          width=10)
-        self.s.configure('UnderlineTicker.TLabel', foreground='#0f69ff', 
-                                                   font='TkDefaultFont 9 bold underline', 
-                                                   width=10)                              
+                                            width=40, wraplength=250)                                                                  
         self.s.configure('BoldFont.TLabel', font='TkDefaultFont 15',
-                                            foreground='#3b3830')
+                                            foreground='#3b3830',
+                                            anchor='w')
         self.s.configure('PlusChange.TLabel', foreground='#2abf2c',
                                               width=10, anchor='e')
         self.s.configure('MinusChange.TLabel', foreground='#ff0000',
                                                width=10, anchor='e')
         self.s.configure('NoChange.TLabel', foreground='black',
                                             width=10, anchor='e')
+        self.s.configure('Ticker.TLabel', foreground='#0f69ff',
+                                          font='TkDefaultFont 9 bold',
+                                          width=10, anchor='w')
+        self.s.configure('UnderlineTicker.TLabel', foreground='#0f69ff', 
+                                                   font='TkDefaultFont 9 bold underline', 
+                                                   width=10, anchor='w')
                                                
         self.trending_stocks()
         self.gainers()
@@ -677,7 +684,7 @@ class MarketTrends(ttk.Frame):
         trend_frame.grid(row=0, column=0, pady=(40,0),
                         padx=(20,0), sticky='nesw')
         header_frame.grid(row=0, column=0, columnspan=2,
-                         sticky='w')
+                         sticky='nesw')
 
         name.grid(row=0, column=0, columnspan=4, sticky='w')
         symbol.grid(row=1, column=0, sticky='w')
