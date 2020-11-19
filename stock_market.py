@@ -29,8 +29,13 @@ class MainWindow(ttk.Frame):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
 
-        self.style = ttk.Style()
-        
+        # Setting up styles
+        self.s = ttk.Style()
+        self.s.configure('Watchlist.TLabel', font='TkDefaultFont 10 bold', 
+                                             foreground='white',
+                                             width=20,
+                                             wraplength=120)
+
         # Frames for each page in the MainWindow
         self.ticker_frame = ttk.Frame(self)
         self.start_frame = ttk.Frame(self)
@@ -399,32 +404,32 @@ class MainWindow(ttk.Frame):
             tk_images.append(ImageTk.PhotoImage(img))
 
         label0 = ttk.Label(frame, text=names[0], image=tk_images[0], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label0.image = tk_images[0]
         label0.grid(row=1, column=0)
 
         label1 = ttk.Label(frame, text=names[1], image=tk_images[1], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label1.image = tk_images[1]
         label1.grid(row=1, column=1)
 
         label2 = ttk.Label(frame, text=names[2], image=tk_images[2], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label2.image = tk_images[2]
         label2.grid(row=1, column=2)
 
         label3 = ttk.Label(frame, text=names[3], image=tk_images[3], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label3.image = tk_images[3]
         label3.grid(row=1, column=3)
 
         label4 = ttk.Label(frame, text=names[4], image=tk_images[4], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label4.image = tk_images[4]
         label4.grid(row=1, column=4)
 
         label5 = ttk.Label(frame, text=names[5], image=tk_images[5], 
-                          compound='center')
+                          compound='center', style='Watchlist.TLabel')
         label5.image = tk_images[5]
         label5.grid(row=1, column=5)
 
@@ -560,6 +565,8 @@ class MarketTrends(ttk.Frame):
                                               width=10, anchor='e')
         self.s.configure('MinusChange.TLabel', foreground='#ff0000',
                                                width=10, anchor='e')
+        self.s.configure('NoChange.TLabel', foreground='black',
+                                            width=10, anchor='e')
                                                
         self.trending_stocks()
         self.gainers()
@@ -711,37 +718,52 @@ class MarketTrends(ttk.Frame):
         if '+' in trend_stock1_change.text:
             trend_stock1_change_label.configure(style='PlusChange.TLabel')
             trend_stock1_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+        elif '-' in trend_stock1_change.text:
             trend_stock1_change_label.configure(style='MinusChange.TLabel')
             trend_stock1_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            trend_stock1_change_label.configure(style='NoChange.TLabel')
+            trend_stock1_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in trend_stock2_change.text:
             trend_stock2_change_label.configure(style='PlusChange.TLabel')
             trend_stock2_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+        elif '-' in trend_stock2_change.text:
             trend_stock2_change_label.configure(style='MinusChange.TLabel')
             trend_stock2_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            trend_stock2_change_label.configure(style='NoChange.TLabel')
+            trend_stock2_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in trend_stock3_change.text:
             trend_stock3_change_label.configure(style='PlusChange.TLabel')
             trend_stock3_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+        elif '-' in trend_stock3_change.text:
             trend_stock3_change_label.configure(style='MinusChange.TLabel')
             trend_stock3_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            trend_stock3_change_label.configure(style='NoChange.TLabel')
+            trend_stock3_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in trend_stock4_change.text:
             trend_stock4_change_label.configure(style='PlusChange.TLabel')
             trend_stock4_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+        elif '-' in trend_stock4_change.text:
             trend_stock4_change_label.configure(style='MinusChange.TLabel')
             trend_stock4_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            trend_stock4_change_label.configure(style='NoChange.TLabel')
+            trend_stock4_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in trend_stock5_change.text:
             trend_stock5_change_label.configure(style='PlusChange.TLabel')
             trend_stock5_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+        elif '-' in trend_stock5_change.text:
             trend_stock5_change_label.configure(style='MinusChange.TLabel')
             trend_stock5_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            trend_stock5_change_label.configure(style='NoChange.TLabel')
+            trend_stock5_percent_label.configure(style='NoChange.TLabel')
 
         # Frames for each stock
         trend1_info.grid(row=1, column=0, columnspan=4, sticky='w')
@@ -935,38 +957,53 @@ class MarketTrends(ttk.Frame):
         # Setting the styles of each value change
         if '+' in gain_stock1_change.text:
             gain_stock1_change_label.configure(style='PlusChange.TLabel')
-            gain_stock1_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            gain_stock1_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in gain_stock1_change.text:
             gain_stock1_change_label.configure(style='MinusChange.TLabel')
             gain_stock1_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            gain_stock1_change_label.configure(style='NoChange.TLabel')
+            gain_stock1_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in gain_stock2_change.text:
             gain_stock2_change_label.configure(style='PlusChange.TLabel')
-            gain_stock2_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            gain_stock2_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in gain_stock2_change.text:
             gain_stock2_change_label.configure(style='MinusChange.TLabel')
             gain_stock2_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            gain_stock2_change_label.configure(style='NoChange.TLabel')
+            gain_stock2_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in gain_stock3_change.text:
             gain_stock3_change_label.configure(style='PlusChange.TLabel')
-            gain_stock3_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            gain_stock3_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in gain_stock3_change.text:
             gain_stock3_change_label.configure(style='MinusChange.TLabel')
             gain_stock3_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            gain_stock3_change_label.configure(style='NoChange.TLabel')
+            gain_stock3_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in gain_stock4_change.text:
             gain_stock4_change_label.configure(style='PlusChange.TLabel')
-            gain_stock4_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            gain_stock4_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in gain_stock4_change.text:
             gain_stock4_change_label.configure(style='MinusChange.TLabel')
             gain_stock4_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            gain_stock4_change_label.configure(style='NoChange.TLabel')
+            gain_stock4_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in gain_stock5_change.text:
             gain_stock5_change_label.configure(style='PlusChange.TLabel')
-            gain_stock5_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            gain_stock5_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in gain_stock5_change.text:
             gain_stock5_change_label.configure(style='MinusChange.TLabel')
             gain_stock5_percent_label.configure(style='MinusChange.TLabel')
+        else:
+            gain_stock5_change_label.configure(style='NoChange.TLabel')
+            gain_stock5_percent_label.configure(style='NoChange.TLabel')
 
         # Frames for each stock
         gain1_info.grid(row=1, column=0, columnspan=4, sticky='w')
@@ -1160,38 +1197,53 @@ class MarketTrends(ttk.Frame):
         # Setting the styles of each value change
         if '+' in lose_stock1_change.text:
             lose_stock1_change_label.configure(style='PlusChange.TLabel')
-            lose_stock1_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            lose_stock1_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in lose_stock1_change.text:
             lose_stock1_change_label.configure(style='MinusChange.TLabel')
-            lose_stock1_percent_label.configure(style='MinusChange.TLabel')
+            lose_stock1_percent_label.configure(style='MinusChange.TLabel') 
+        else:
+            lose_stock1_change_label.configure(style='NoChange.TLabel')
+            lose_stock1_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in lose_stock2_change.text:
             lose_stock2_change_label.configure(style='PlusChange.TLabel')
-            lose_stock2_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            lose_stock2_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in lose_stock2_change.text:
             lose_stock2_change_label.configure(style='MinusChange.TLabel')
-            lose_stock2_percent_label.configure(style='MinusChange.TLabel')
+            lose_stock2_percent_label.configure(style='MinusChange.TLabel') 
+        else:
+            lose_stock2_change_label.configure(style='NoChange.TLabel')
+            lose_stock2_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in lose_stock3_change.text:
             lose_stock3_change_label.configure(style='PlusChange.TLabel')
-            lose_stock3_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            lose_stock3_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in lose_stock3_change.text:
             lose_stock3_change_label.configure(style='MinusChange.TLabel')
-            lose_stock3_percent_label.configure(style='MinusChange.TLabel')
+            lose_stock3_percent_label.configure(style='MinusChange.TLabel') 
+        else:
+            lose_stock3_change_label.configure(style='NoChange.TLabel')
+            lose_stock3_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in lose_stock4_change.text:
             lose_stock4_change_label.configure(style='PlusChange.TLabel')
-            lose_stock4_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            lose_stock4_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in lose_stock4_change.text:
             lose_stock4_change_label.configure(style='MinusChange.TLabel')
-            lose_stock4_percent_label.configure(style='MinusChange.TLabel')
+            lose_stock4_percent_label.configure(style='MinusChange.TLabel') 
+        else:
+            lose_stock4_change_label.configure(style='NoChange.TLabel')
+            lose_stock4_percent_label.configure(style='NoChange.TLabel')
 
         if '+' in lose_stock5_change.text:
             lose_stock5_change_label.configure(style='PlusChange.TLabel')
-            lose_stock5_percent_label.configure(style='PlusChange.TLabel') 
-        else:
+            lose_stock5_percent_label.configure(style='PlusChange.TLabel')
+        elif '-' in lose_stock5_change.text:
             lose_stock5_change_label.configure(style='MinusChange.TLabel')
-            lose_stock5_percent_label.configure(style='MinusChange.TLabel')
+            lose_stock5_percent_label.configure(style='MinusChange.TLabel') 
+        else:
+            lose_stock5_change_label.configure(style='NoChange.TLabel')
+            lose_stock5_percent_label.configure(style='NoChange.TLabel')
 
         # Frames for eack stock
         lose1_info.grid(row=1, column=0, columnspan=4, sticky='w')
@@ -1243,8 +1295,6 @@ class MarketTrends(ttk.Frame):
 def main():
     root = tk.Tk()
     root.state('zoomed')
-
-    s = ttk.Style()
 
     main_window = MainWindow(root)
     market_trends = MarketTrends(root)
