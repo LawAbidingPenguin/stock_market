@@ -39,6 +39,17 @@ class MainWindow(ttk.Frame):
                                              foreground='white',
                                              width=20,
                                              wraplength=120)
+        self.s.configure('NewsTitle.TLabel', font='TkDefaultFont 16',
+                                             foreground='black')
+        self.s.configure('News.TLabel', font='TkDefaultFont 11 bold',
+                                        foreground='#1256a0',
+                                        wraplength=300,
+                                        width=50)
+        self.s.configure('UnderlineNews.TLabel', font='TkDefaultFont 11 bold underline',
+                                                 foreground='#1256a0',
+                                                 wraplength=300,
+                                                 width=50)
+
 
         # Frames for each page in the MainWindow
         self.ticker_frame = ttk.Frame(self)
@@ -481,64 +492,127 @@ class MainWindow(ttk.Frame):
         images = []
         for img_src in images_src:
             # turning a bytes representation of an image
-            # into a format usable by ImageTk.PhotoImage  
-            images.append(Image.open(io.BytesIO(session.get(img_src).content)))
+            # into a format usable by ImageTk.PhotoImage
+            # also making the image a bit darker
+            im = Image.open(io.BytesIO(session.get(img_src).content))
+            #en = ImageEnhance.Brightness(im)
+            #im_dark = en.enhance(0.80)
+            images.append(im)
 
         # images to be used in tk widgets
         tk_images = []
         for img in images:
+            img.thumbnail((100,100))
             tk_images.append(ImageTk.PhotoImage(img))
+
+        title = r.html.xpath(us.news_title, first=True).text
+        title_label = ttk.Label(self.news_frame, text=title,
+                                                 style='NewsTitle.TLabel')
+        title_label.grid(row=0, column=0, pady=(20,10), sticky='w')
             
-        news0 = ttk.Label(self.news_frame, text=headlines[0], image=tk_images[0], compound='right')
+        news0 = ttk.Label(self.news_frame, text=headlines[0], image=tk_images[0], compound='left',
+                                                                                  style='News.TLabel')
         news0.bind('<Button-1>', lambda e: self.open_news_page(news_urls[0]))
-        news0.bind('<Enter>', lambda e: self.news_summary(news_urls[0]))
+        news0.bind('<Enter>', lambda e: news0.configure(style='UnderlineNews.TLabel'))
+        news0.bind('<Leave>', lambda e: news0.configure(style='News.TLabel'))
         news0.image = tk_images[0]
-        news0.grid(row=1, column=0)
+        news0.grid(row=1, column=0, sticky='w', pady=(5,5), padx=(0,20))
 
-        news1 = ttk.Label(self.news_frame, text=headlines[1], image=tk_images[1], compound='right')
+        news1 = ttk.Label(self.news_frame, text=headlines[1], image=tk_images[1], compound='left',
+                                                                                  style='News.TLabel')
         news1.bind('<Button-1>', lambda e: self.open_news_page(news_urls[1]))
+        news1.bind('<Enter>', lambda e: news1.configure(style='UnderlineNews.TLabel'))
+        news1.bind('<Leave>', lambda e: news1.configure(style='News.TLabel'))
         news1.image = tk_images[1]
-        news1.grid(row=2, column=0)
+        news1.grid(row=3, column=0, sticky='w', pady=(5,5), padx=(0,20))
 
-        news2 = ttk.Label(self.news_frame, text=headlines[2], image=tk_images[2], compound='right')
+        news2 = ttk.Label(self.news_frame, text=headlines[2], image=tk_images[2], compound='left',
+                                                                                  style='News.TLabel')
         news2.bind('<Button-1>', lambda e: self.open_news_page(news_urls[2]))
+        news2.bind('<Enter>', lambda e: news2.configure(style='UnderlineNews.TLabel'))
+        news2.bind('<Leave>', lambda e: news2.configure(style='News.TLabel'))
         news2.image = tk_images[2]
-        news2.grid(row=3, column=0)
+        news2.grid(row=5, column=0, sticky='w', pady=(5,5), padx=(0,20))
 
-        news3 = ttk.Label(self.news_frame, text=headlines[3], image=tk_images[3], compound='right')
+        news3 = ttk.Label(self.news_frame, text=headlines[3], image=tk_images[3], compound='left',
+                                                                                  style='News.TLabel')
         news3.bind('<Button-1>', lambda e: self.open_news_page(news_urls[3]))
+        news3.bind('<Enter>', lambda e: news3.configure(style='UnderlineNews.TLabel'))
+        news3.bind('<Leave>', lambda e: news3.configure(style='News.TLabel'))
         news3.image = tk_images[3]
-        news3.grid(row=4, column=0)
+        news3.grid(row=7, column=0, sticky='w', pady=(5,5), padx=(0,20))
 
-        news4 = ttk.Label(self.news_frame, text=headlines[4], image=tk_images[4], compound='right')
+        news4 = ttk.Label(self.news_frame, text=headlines[4], image=tk_images[4], compound='left',
+                                                                                  style='News.TLabel')
         news4.bind('<Button-1>', lambda e: self.open_news_page(news_urls[4]))
+        news4.bind('<Enter>', lambda e: news4.configure(style='UnderlineNews.TLabel'))
+        news4.bind('<Leave>', lambda e: news4.configure(style='News.TLabel'))
         news4.image = tk_images[4]
-        news4.grid(row=5, column=0)
+        news4.grid(row=9, column=0, sticky='w', pady=(5,5), padx=(0,20))
 
-        news5 = ttk.Label(self.news_frame, text=headlines[5], image=tk_images[5], compound='right')
+        news5 = ttk.Label(self.news_frame, text=headlines[5], image=tk_images[5], compound='left',
+                                                                                  style='News.TLabel')
         news5.bind('<Button-1>', lambda e: self.open_news_page(news_urls[5]))
+        news5.bind('<Enter>', lambda e: news5.configure(style='UnderlineNews.TLabel'))
+        news5.bind('<Leave>', lambda e: news5.configure(style='News.TLabel'))
         news5.image = tk_images[5]
-        news5.grid(row=1, column=1)
+        news5.grid(row=1, column=1, sticky='w', pady=(5,5), padx=(0,20))
 
-        news6 = ttk.Label(self.news_frame, text=headlines[6], image=tk_images[6], compound='right')
+        news6 = ttk.Label(self.news_frame, text=headlines[6], image=tk_images[6], compound='left',
+                                                                                  style='News.TLabel')
         news6.bind('<Button-1>', lambda e: self.open_news_page(news_urls[6]))
+        news6.bind('<Enter>', lambda e: news6.configure(style='UnderlineNews.TLabel'))
+        news6.bind('<Leave>', lambda e: news6.configure(style='News.TLabel'))
         news6.image = tk_images[6]
-        news6.grid(row=2, column=1)
+        news6.grid(row=3, column=1, sticky='w', pady=(5,5), padx=(0,20))
 
-        news7 = ttk.Label(self.news_frame, text=headlines[7], image=tk_images[7], compound='right')
+        news7 = ttk.Label(self.news_frame, text=headlines[7], image=tk_images[7], compound='left',
+                                                                                  style='News.TLabel')
         news7.bind('<Button-1>', lambda e: self.open_news_page(news_urls[7]))
+        news7.bind('<Enter>', lambda e: news7.configure(style='UnderlineNews.TLabel'))
+        news7.bind('<Leave>', lambda e: news7.configure(style='News.TLabel'))
         news7.image = tk_images[7]
-        news7.grid(row=3, column=1)
+        news7.grid(row=5, column=1, sticky='w', pady=(5,5), padx=(0,20))
 
-        news8 = ttk.Label(self.news_frame, text=headlines[8], image=tk_images[8], compound='right')
+        news8 = ttk.Label(self.news_frame, text=headlines[8], image=tk_images[8], compound='left',
+                                                                                  style='News.TLabel')
         news8.bind('<Button-1>', lambda e: self.open_news_page(news_urls[8]))
+        news8.bind('<Enter>', lambda e: news8.configure(style='UnderlineNews.TLabel'))
+        news8.bind('<Leave>', lambda e: news8.configure(style='News.TLabel'))
         news8.image = tk_images[8]
-        news8.grid(row=4, column=1)
+        news8.grid(row=7, column=1, sticky='w', pady=(5,5), padx=(0,20))
 
-        news9 = ttk.Label(self.news_frame, text=headlines[9], image=tk_images[9], compound='right')
+        news9 = ttk.Label(self.news_frame, text=headlines[9], image=tk_images[9], compound='left',
+                                                                                  style='News.TLabel')
         news9.bind('<Button-1>', lambda e: self.open_news_page(news_urls[9]))
+        news9.bind('<Enter>', lambda e: news9.configure(style='UnderlineNews.TLabel'))
+        news9.bind('<Leave>', lambda e: news9.configure(style='News.TLabel'))
         news9.image = tk_images[9]
-        news9.grid(row=5, column=1)
+        news9.grid(row=9, column=1, sticky='w', pady=(5,5), padx=(0,20))
+
+        # ttk separators
+        news0_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news1_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news2_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news3_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news4_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news5_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news6_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news7_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news8_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+        news9_sep = ttk.Separator(self.news_frame, orient=tk.HORIZONTAL)
+
+        news0_sep.grid(row=2, column=0, sticky='nesw', padx=(0,20))
+        news1_sep.grid(row=4, column=0, sticky='nesw', padx=(0,20))
+        news2_sep.grid(row=6, column=0, sticky='nesw', padx=(0,20))
+        news3_sep.grid(row=8, column=0, sticky='nesw', padx=(0,20))
+        news4_sep.grid(row=10, column=0, sticky='nesw', padx=(0,20))
+        news5_sep.grid(row=2, column=1, sticky='nesw', padx=(0,20))
+        news6_sep.grid(row=4, column=1, sticky='nesw', padx=(0,20))
+        news7_sep.grid(row=6, column=1, sticky='nesw', padx=(0,20))
+        news8_sep.grid(row=8, column=1, sticky='nesw', padx=(0,20))
+        news9_sep.grid(row=10, column=1, sticky='nesw', padx=(0,20))
+
 
     def open_news_page(self, news_url):
         webbrowser.open(news_url, new=2, autoraise=True)
@@ -561,7 +635,8 @@ class MarketTrends(ttk.Frame):
         self.parent = parent
 
         self.s = ttk.Style()
-
+        # Configuring styles
+        # Label styles
         self.s.configure('Value.TLabel', foreground='black',
                                          width=10, anchor='e')
         self.s.configure('GrayFont.TLabel', foreground='#5b636a',
@@ -583,7 +658,8 @@ class MarketTrends(ttk.Frame):
         self.s.configure('Ticker.TLabel', foreground='#0f69ff',
                                           font='TkDefaultFont 9 bold',
                                           width=10, anchor='w')
-        self.s.configure('UnderlineTicker.TLabel', foreground='#0f69ff', 
+        self.s.configure('UnderlineTicker.TLabel', background='#c5e0fa',
+                                                   foreground='#0f69ff', 
                                                    font='TkDefaultFont 9 bold underline', 
                                                    width=10, anchor='w')
                                                
@@ -829,7 +905,7 @@ class MarketTrends(ttk.Frame):
         trend_stock5_label.bind('<Enter>', lambda e:
                                trend_stock5_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock5_label.bind('<Leave>', lambda e:
-                               trend_stock5_label.configure(style='Ticker.TLabel'))    
+                               trend_stock5_label.configure(style='Ticker.TLabel'))   
   
     def gainers(self):
 
