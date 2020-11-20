@@ -32,6 +32,9 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
+        self.s.configure('WL_Title.TLabel', font='TkDefaultFont 15',
+                                            foreground='#3b3830',
+                                            anchor='w')
         self.s.configure('Watchlist.TLabel', font='TkDefaultFont 12 bold', 
                                              foreground='white',
                                              width=20,
@@ -407,6 +410,15 @@ class MainWindow(ttk.Frame):
         for img in images:
             img.thumbnail((200,200))
             tk_images.append(ImageTk.PhotoImage(img))
+
+        # Getting the title of each watchlist
+        title = r.html.xpath(us.wl_title, first=True).text + ':'
+
+        # Setting up labels
+        title_label = ttk.Label(frame, text=title,
+                                       style='WL_Title.TLabel')
+        title_label.grid(row=0, column=0, columnspan=6, 
+                        sticky='w', pady=(20,0))
 
         label0 = ttk.Label(frame, text=names[0], image=tk_images[0], 
                           compound='center', style='Watchlist.TLabel')
