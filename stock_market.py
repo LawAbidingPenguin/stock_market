@@ -35,6 +35,12 @@ class MainWindow(ttk.Frame):
         self.s.configure('WL_Title.TLabel', font='TkDefaultFont 15',
                                             foreground='#3b3830',
                                             anchor='w')
+        self.s.configure('WL_Hover.TLabel', font='TkDefaultFont 12 bold', 
+                                            foreground='white',
+                                            width=20,
+                                            wraplength=120,
+                                            relief='ridge',
+                                            borderwidth=20)
         self.s.configure('Watchlist.TLabel', font='TkDefaultFont 12 bold', 
                                              foreground='white',
                                              width=20,
@@ -43,11 +49,11 @@ class MainWindow(ttk.Frame):
                                              foreground='black')
         self.s.configure('News.TLabel', font='TkDefaultFont 11 bold',
                                         foreground='#1256a0',
-                                        wraplength=300,
+                                        wraplength=350,
                                         width=50)
         self.s.configure('UnderlineNews.TLabel', font='TkDefaultFont 11 bold underline',
                                                  foreground='#1256a0',
-                                                 wraplength=300,
+                                                 wraplength=350,
                                                  width=50)
 
 
@@ -460,6 +466,26 @@ class MainWindow(ttk.Frame):
                           compound='center', style='Watchlist.TLabel')
         label5.image = tk_images[5]
         label5.grid(row=1, column=5)
+
+        # Bindings
+        label0.bind('<Enter>', lambda e: label0.configure(style='WL_Hover.TLabel'))
+        label0.bind('<Leave>', lambda e: label0.configure(style='Watchlist.TLabel'))
+
+        label1.bind('<Enter>', lambda e: label1.configure(style='WL_Hover.TLabel'))
+        label1.bind('<Leave>', lambda e: label1.configure(style='Watchlist.TLabel'))
+
+        label2.bind('<Enter>', lambda e: label2.configure(style='WL_Hover.TLabel'))
+        label2.bind('<Leave>', lambda e: label2.configure(style='Watchlist.TLabel'))
+
+        label3.bind('<Enter>', lambda e: label3.configure(style='WL_Hover.TLabel'))
+        label3.bind('<Leave>', lambda e: label3.configure(style='Watchlist.TLabel'))
+
+        label4.bind('<Enter>', lambda e: label4.configure(style='WL_Hover.TLabel'))
+        label4.bind('<Leave>', lambda e: label4.configure(style='Watchlist.TLabel'))
+
+        label5.bind('<Enter>', lambda e: label5.configure(style='WL_Hover.TLabel'))
+        label5.bind('<Leave>', lambda e: label5.configure(style='Watchlist.TLabel'))
+
 
     def news(self):
          
