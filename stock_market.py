@@ -32,6 +32,9 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
+        self.s.configure('WLSymbol.TLabel', foreground='#0f69ff',
+                                            font='TkDefaultFont 9 bold',
+                                            anchor='w')
         self.s.configure('WLHeader.TLabel', foreground='#5b636a',
                                             width=10, anchor='e', 
                                             font='TkDefaultFont 9')
@@ -381,9 +384,6 @@ class MainWindow(ttk.Frame):
         self.follow_frame = ttk.Frame(self.start_frame)
         self.news_frame = ttk.Frame(self.start_frame)
 
-        self.wl_data_window = tk.Toplevel(self.start_frame)
-        self.wl_data_window.withdraw()
-
         self.top_frame.grid(row=1, column=0, columnspan=6)
         self.worst_frame.grid(row=2, column=0, columnspan=6)
         self.follow_frame.grid(row=3, column=0, columnspan=6)
@@ -473,8 +473,8 @@ class MainWindow(ttk.Frame):
         label5.grid(row=1, column=5)
 
         # Bindings
-        label0.bind('<Enter>', lambda e: [label0.configure(style='WL_Hover.TLabel'),
-                                         self.get_wl_data(self.wl_data_window, urls[0])])
+        label0.bind('<Enter>', lambda e: label0.configure(style='WL_Hover.TLabel'))
+        label0.bind('<Button-1>', lambda e: self.get_wl_data(urls[0], names[0]))
         label0.bind('<Leave>', lambda e: label0.configure(style='Watchlist.TLabel'))
 
         label1.bind('<Enter>', lambda e: label1.configure(style='WL_Hover.TLabel'))
@@ -493,15 +493,15 @@ class MainWindow(ttk.Frame):
         label5.bind('<Leave>', lambda e: label5.configure(style='Watchlist.TLabel'))
 
     # Getting the data for each watchlist
-    def get_wl_data(self, frame, url):
+    def get_wl_data(self, url, title):
 
-        for child in frame.winfo_children():
-            child.destroy()
+        frame = tk.Toplevel(self.start_frame)
+        frame.title(title)
 
         session = req.HTMLSession()
         r = session.get(url)
 
-        data_xpath = r.html.xpath('//*[@id="Col1-0-WatchlistDetail-Proxy"]/div/section[3]/div/div/table/tbody', first=True)
+        data_xpath = r.html.xpath(us.wl_url, first=True)
         data = data_xpath.text.split('\n')
 
         symbols = data[0::9]
@@ -525,8 +525,7 @@ class MainWindow(ttk.Frame):
         cp = ttk.Label(frame, text='% Change', style='WLHeader.TLabel')
         mt = ttk.Label(frame, text='Market Time', style='WLHeader.TLabel',
                                                   width=15)
-        v = ttk.Label(frame, text='Volume', style='WLHeader.TLabel',
-                                            width=13)
+        v = ttk.Label(frame, text='Volume', style='WLHeader.TLabel')
         av = ttk.Label(frame, text='Avg Vol (3 month)', style='WLHeader.TLabel',
                                                         width=15)
         mc = ttk.Label(frame, text='Market Cap', style='WLHeader.TLabel',
@@ -534,7 +533,7 @@ class MainWindow(ttk.Frame):
         head_sep = ttk.Separator(frame, orient=tk.HORIZONTAL)
 
         s.grid(row=0, column=0)
-        cn.grid(row=0, column=1)
+        cn.grid(row=0, column=1, sticky='w')
         lp.grid(row=0, column=2)
         c.grid(row=0, column=3)
         cp.grid(row=0, column=4)
@@ -544,7 +543,48 @@ class MainWindow(ttk.Frame):
         mc.grid(row=0, column=8)
         head_sep.grid(row=1, column=0, columnspan=9, sticky='nesw')
 
-        self.wl_data_window.deiconify()        
+        for n in range(0,len(names)):
+
+            ttk.Label(frame, text=symbols[n], style='WLSymbol.TLabel').grid(
+                             row=n+2, column=0, pady=(2,0), sticky='w')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=0, sticky='nesw')
+
+            ttk.Label(frame, text=names[n]).grid(row=n+2, column=1, pady=(2,0), sticky='w')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=1, sticky='nesw')
+
+            ttk.Label(frame, text=values[n], font='TkDefaultFont 9 bold').grid(
+                             row=n+2, column=2, pady=(2,0), sticky='e')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=2, sticky='nesw')
+
+            if '-' in changes[n]:
+                ttk.Label(frame, text=changes[n], foreground='#ff0000').grid(
+                                 row=n+2, column=3, pady=(2,0), sticky='e')
+                ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=3, sticky='nesw')
+
+                ttk.Label(frame, text=changes_perc[n], foreground='#ff0000').grid(
+                                 row=n+2, column=4, pady=(2,0), sticky='e')
+                ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=4, sticky='nesw')
+            else:
+                ttk.Label(frame, text=changes[n], foreground='#2abf2c').grid(
+                                 row=n+2, column=3, pady=(2,0), sticky='e')
+                ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=3, sticky='nesw')
+
+                ttk.Label(frame, text=changes_perc[n], foreground='#2abf2c').grid(
+                                 row=n+2, column=4, pady=(2,0), sticky='e')
+                ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=4, sticky='nesw')
+
+            ttk.Label(frame, text=market_times[n]).grid(row=n+2, column=5, pady=(2,0), sticky='e')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=5, sticky='nesw')
+
+            ttk.Label(frame, text=volumes[n]).grid(row=n+2, column=6, pady=(2,0), sticky='e')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=6, sticky='nesw')
+
+            ttk.Label(frame, text=avg_volumes[n]).grid(row=n+2, column=7, pady=(2,0), sticky='e')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=7, sticky='nesw')
+
+            ttk.Label(frame, text=market_caps[n]).grid(row=n+2, column=8, pady=(2,0), sticky='e')
+            ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=8, sticky='nesw')
+        
 
     def news(self):
          
