@@ -478,18 +478,23 @@ class MainWindow(ttk.Frame):
         label0.bind('<Leave>', lambda e: label0.configure(style='Watchlist.TLabel'))
 
         label1.bind('<Enter>', lambda e: label1.configure(style='WL_Hover.TLabel'))
+        label1.bind('<Button-1>', lambda e: self.get_wl_data(urls[1], names[1]))
         label1.bind('<Leave>', lambda e: label1.configure(style='Watchlist.TLabel'))
 
         label2.bind('<Enter>', lambda e: label2.configure(style='WL_Hover.TLabel'))
+        label2.bind('<Button-1>', lambda e: self.get_wl_data(urls[2], names[2]))
         label2.bind('<Leave>', lambda e: label2.configure(style='Watchlist.TLabel'))
 
         label3.bind('<Enter>', lambda e: label3.configure(style='WL_Hover.TLabel'))
+        label3.bind('<Button-1>', lambda e: self.get_wl_data(urls[3], names[3]))
         label3.bind('<Leave>', lambda e: label3.configure(style='Watchlist.TLabel'))
 
         label4.bind('<Enter>', lambda e: label4.configure(style='WL_Hover.TLabel'))
+        label4.bind('<Button-1>', lambda e: self.get_wl_data(urls[4], names[4]))
         label4.bind('<Leave>', lambda e: label4.configure(style='Watchlist.TLabel'))
 
         label5.bind('<Enter>', lambda e: label5.configure(style='WL_Hover.TLabel'))
+        label5.bind('<Button-1>', lambda e: self.get_wl_data(urls[5], names[5]))
         label5.bind('<Leave>', lambda e: label5.configure(style='Watchlist.TLabel'))
 
     # Getting the data for each watchlist
@@ -584,7 +589,6 @@ class MainWindow(ttk.Frame):
 
             ttk.Label(frame, text=market_caps[n]).grid(row=n+2, column=8, pady=(2,0), sticky='e')
             ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=8, sticky='nesw')
-        
 
     def news(self):
          
@@ -738,7 +742,6 @@ class MainWindow(ttk.Frame):
         news8_sep.grid(row=8, column=1, sticky='nesw', padx=(0,20))
         news9_sep.grid(row=10, column=1, sticky='nesw', padx=(0,20))
 
-
     def open_news_page(self, news_url):
         webbrowser.open(news_url, new=2, autoraise=True)
                 
@@ -763,23 +766,28 @@ class MarketTrends(ttk.Frame):
         # Configuring styles
         # Label styles
         self.s.configure('Value.TLabel', foreground='black',
-                                         width=10, anchor='e')
+                                         width=10, anchor='e',
+                                         font='TkDefaultFont 9 bold')
         self.s.configure('GrayFont.TLabel', foreground='#5b636a',
-                                            width=10, anchor='e')
+                                            width=10, anchor='e',
+                                            font='TkDefaultFont 9 bold')
         self.s.configure('Symbol.TLabel', foreground='#5b636a',
                                           width=10, anchor='w', 
-                                          font='TkDefaultFont 9')
+                                          font='TkDefaultFont 9 bold')
         self.s.configure('NameFont.TLabel', foreground='#5b636a',
                                             width=40, wraplength=250)                                                                  
         self.s.configure('BoldFont.TLabel', font='TkDefaultFont 15',
                                             foreground='#3b3830',
                                             anchor='w')
         self.s.configure('PlusChange.TLabel', foreground='#2abf2c',
-                                              width=10, anchor='e')
+                                              width=10, anchor='e',
+                                              font='TkDefaultFont 9 bold')
         self.s.configure('MinusChange.TLabel', foreground='#ff0000',
-                                               width=10, anchor='e')
+                                               width=10, anchor='e',
+                                               font='TkDefaultFont 9 bold')
         self.s.configure('NoChange.TLabel', foreground='black',
-                                            width=10, anchor='e')
+                                            width=10, anchor='e',
+                                            font='TkDefaultFont 9 bold')
         self.s.configure('Ticker.TLabel', foreground='#0f69ff',
                                           font='TkDefaultFont 9 bold',
                                           width=10, anchor='w')
