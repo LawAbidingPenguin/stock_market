@@ -32,6 +32,9 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
+        self.s.configure('WLHeader.TLabel', foreground='#5b636a',
+                                            width=10, anchor='e', 
+                                            font='TkDefaultFont 9')
         self.s.configure('WL_Title.TLabel', font='TkDefaultFont 15',
                                             foreground='#3b3830',
                                             anchor='w')
@@ -39,8 +42,7 @@ class MainWindow(ttk.Frame):
                                             foreground='white',
                                             width=20,
                                             wraplength=120,
-                                            relief='ridge',
-                                            borderwidth=20)
+                                            relief='raised')
         self.s.configure('Watchlist.TLabel', font='TkDefaultFont 12 bold', 
                                              foreground='white',
                                              width=20,
@@ -379,6 +381,9 @@ class MainWindow(ttk.Frame):
         self.follow_frame = ttk.Frame(self.start_frame)
         self.news_frame = ttk.Frame(self.start_frame)
 
+        self.wl_data_window = tk.Toplevel(self.start_frame)
+        self.wl_data_window.withdraw()
+
         self.top_frame.grid(row=1, column=0, columnspan=6)
         self.worst_frame.grid(row=2, column=0, columnspan=6)
         self.follow_frame.grid(row=3, column=0, columnspan=6)
@@ -411,7 +416,7 @@ class MainWindow(ttk.Frame):
             img_src = info.find('img', first=True)
             img_src = img_src.attrs['src']
             images_src.append(img_src)
-            
+
         images = []
         for img_src in images_src:
             # turning a bytes representation of an image
@@ -421,7 +426,7 @@ class MainWindow(ttk.Frame):
             en = ImageEnhance.Brightness(im)
             im_dark = en.enhance(0.70)
             images.append(im_dark)
-
+        
         # images to be used in tk widgets
         tk_images = []
         for img in images:
@@ -468,7 +473,8 @@ class MainWindow(ttk.Frame):
         label5.grid(row=1, column=5)
 
         # Bindings
-        label0.bind('<Enter>', lambda e: label0.configure(style='WL_Hover.TLabel'))
+        label0.bind('<Enter>', lambda e: [label0.configure(style='WL_Hover.TLabel'),
+                                         self.get_wl_data(self.wl_data_window, urls[0])])
         label0.bind('<Leave>', lambda e: label0.configure(style='Watchlist.TLabel'))
 
         label1.bind('<Enter>', lambda e: label1.configure(style='WL_Hover.TLabel'))
@@ -486,6 +492,59 @@ class MainWindow(ttk.Frame):
         label5.bind('<Enter>', lambda e: label5.configure(style='WL_Hover.TLabel'))
         label5.bind('<Leave>', lambda e: label5.configure(style='Watchlist.TLabel'))
 
+    # Getting the data for each watchlist
+    def get_wl_data(self, frame, url):
+
+        for child in frame.winfo_children():
+            child.destroy()
+
+        session = req.HTMLSession()
+        r = session.get(url)
+
+        data_xpath = r.html.xpath('//*[@id="Col1-0-WatchlistDetail-Proxy"]/div/section[3]/div/div/table/tbody', first=True)
+        data = data_xpath.text.split('\n')
+
+        symbols = data[0::9]
+        names = data[1::9]
+        values = data[2::9]
+        changes = data[3::9]
+        changes_perc = data[4::9]
+        market_times = data[5::9]
+        volumes = data[6::9]
+        avg_volumes = data[7::9]
+        market_caps = data[8::9]
+
+        # Headers
+        s = ttk.Label(frame, text='Symbol', style='WLHeader.TLabel',
+                                            anchor='w')
+        cn = ttk.Label(frame, text='Company Name', style='WLHeader.TLabel',
+                                                   anchor='w', 
+                                                   width=25)
+        lp = ttk.Label(frame, text='Last Price', style='WLHeader.TLabel')
+        c = ttk.Label(frame, text='Change', style='WLHeader.TLabel')
+        cp = ttk.Label(frame, text='% Change', style='WLHeader.TLabel')
+        mt = ttk.Label(frame, text='Market Time', style='WLHeader.TLabel',
+                                                  width=15)
+        v = ttk.Label(frame, text='Volume', style='WLHeader.TLabel',
+                                            width=13)
+        av = ttk.Label(frame, text='Avg Vol (3 month)', style='WLHeader.TLabel',
+                                                        width=15)
+        mc = ttk.Label(frame, text='Market Cap', style='WLHeader.TLabel',
+                                                 width=12)
+        head_sep = ttk.Separator(frame, orient=tk.HORIZONTAL)
+
+        s.grid(row=0, column=0)
+        cn.grid(row=0, column=1)
+        lp.grid(row=0, column=2)
+        c.grid(row=0, column=3)
+        cp.grid(row=0, column=4)
+        mt.grid(row=0, column=5)
+        v.grid(row=0, column=6)
+        av.grid(row=0, column=7)
+        mc.grid(row=0, column=8)
+        head_sep.grid(row=1, column=0, columnspan=9, sticky='nesw')
+
+        self.wl_data_window.deiconify()        
 
     def news(self):
          
