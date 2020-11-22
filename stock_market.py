@@ -32,8 +32,7 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
-        self.s.configure('WLSymbol.TLabel', foreground='#0f69ff',
-                                            font='TkDefaultFont 9 bold',
+        self.s.configure('WLSymbol.TLabel', font='TkDefaultFont 9 bold',
                                             anchor='w')
         self.s.configure('WLHeader.TLabel', foreground='#5b636a',
                                             width=10, anchor='e', 
@@ -61,18 +60,20 @@ class MainWindow(ttk.Frame):
                                                  wraplength=350,
                                                  width=50)
 
+        # Frames for MainWindow
+        self.search_frame = ttk.Frame(self)
+        self.search_frame.grid(row=0, column=0)
 
-        # Frames for each page in the MainWindow
         self.ticker_frame = ttk.Frame(self)
         self.start_frame = ttk.Frame(self)
 
         # Search_company shortcut
-        self.search_comp = ttk.Entry(self)
-        self.search_comp.grid(row=0, column=0)
+        self.search_comp = ttk.Entry(self.search_frame, width=50)
+        self.search_comp.grid(row=0, column=0, padx=(0,20))
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
                                                         self.search_comp.get()))
 
-        self.search_button = ttk.Button(self, text='Search', command=lambda : 
+        self.search_button = ttk.Button(self.search_frame, text='Search', command=lambda : 
                                        [self.ticker_window(),
                                        self.search_comp.delete(0,tk.END)])
         self.search_button.grid(row=0, column=1, sticky='w')
@@ -770,10 +771,10 @@ class MarketTrends(ttk.Frame):
                                          font='TkDefaultFont 9 bold')
         self.s.configure('GrayFont.TLabel', foreground='#5b636a',
                                             width=10, anchor='e',
-                                            font='TkDefaultFont 9 bold')
+                                            font='TkDefaultFont 9')
         self.s.configure('Symbol.TLabel', foreground='#5b636a',
                                           width=10, anchor='w', 
-                                          font='TkDefaultFont 9 bold')
+                                          font='TkDefaultFont 9')
         self.s.configure('NameFont.TLabel', foreground='#5b636a',
                                             width=40, wraplength=250)                                                                  
         self.s.configure('BoldFont.TLabel', font='TkDefaultFont 15',
@@ -781,13 +782,13 @@ class MarketTrends(ttk.Frame):
                                             anchor='w')
         self.s.configure('PlusChange.TLabel', foreground='#2abf2c',
                                               width=10, anchor='e',
-                                              font='TkDefaultFont 9 bold')
+                                              font='TkDefaultFont 9')
         self.s.configure('MinusChange.TLabel', foreground='#ff0000',
                                                width=10, anchor='e',
-                                               font='TkDefaultFont 9 bold')
+                                               font='TkDefaultFont 9')
         self.s.configure('NoChange.TLabel', foreground='black',
                                             width=10, anchor='e',
-                                            font='TkDefaultFont 9 bold')
+                                            font='TkDefaultFont 9')
         self.s.configure('Ticker.TLabel', foreground='#0f69ff',
                                           font='TkDefaultFont 9 bold',
                                           width=10, anchor='w')
