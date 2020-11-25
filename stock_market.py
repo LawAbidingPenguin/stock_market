@@ -24,6 +24,7 @@ import urls_and_selectors as us
 #TODO Update MarketTrends with additional info
 #TODO Create frames for starting page and ticker window
 
+
 class MainWindow(ttk.Frame):
     
     def __init__(self, parent, *args, **kwargs):
@@ -122,10 +123,11 @@ class MainWindow(ttk.Frame):
 
         self.suggs_window.deiconify()
         self.search_comp.focus_set()
-        
+
         # If search bar is empty, hide window
         if suggestions == []:
             self.suggs_window.withdraw()
+
 
     # Displaying ticker info
     def ticker_window(self):
@@ -639,10 +641,15 @@ class MainWindow(ttk.Frame):
         title_label = ttk.Label(self.news_frame, text=title,
                                                  style='NewsTitle.TLabel')
         title_label.grid(row=0, column=0, pady=(20,10), sticky='w')
+        instructions = ttk.Label(self.news_frame, text=('Left-Click to read news'
+                                                       '\nRight-Click to visit website'),
+                                                  foreground='#ababab')
+        instructions.grid(row=0, column=1, sticky='e')
             
         news0 = ttk.Label(self.news_frame, text=headlines[0], image=tk_images[0], compound='left',
                                                                                   style='News.TLabel')
-        news0.bind('<Button-1>', lambda e: self.open_news_page(news_urls[0]))
+        news0.bind('<Button-1>', lambda e: self.news_summary(news_urls[0], headlines[0]))
+        news0.bind('<Button-3>', lambda e: self.open_news_page(news_urls[0]))
         news0.bind('<Enter>', lambda e: news0.configure(style='UnderlineNews.TLabel'))
         news0.bind('<Leave>', lambda e: news0.configure(style='News.TLabel'))
         news0.image = tk_images[0]
@@ -650,7 +657,8 @@ class MainWindow(ttk.Frame):
 
         news1 = ttk.Label(self.news_frame, text=headlines[1], image=tk_images[1], compound='left',
                                                                                   style='News.TLabel')
-        news1.bind('<Button-1>', lambda e: self.open_news_page(news_urls[1]))
+        news1.bind('<Button-1>', lambda e: self.news_summary(news_urls[1], headlines[1]))
+        news1.bind('<Button-3>', lambda e: self.open_news_page(news_urls[1]))
         news1.bind('<Enter>', lambda e: news1.configure(style='UnderlineNews.TLabel'))
         news1.bind('<Leave>', lambda e: news1.configure(style='News.TLabel'))
         news1.image = tk_images[1]
@@ -658,7 +666,8 @@ class MainWindow(ttk.Frame):
 
         news2 = ttk.Label(self.news_frame, text=headlines[2], image=tk_images[2], compound='left',
                                                                                   style='News.TLabel')
-        news2.bind('<Button-1>', lambda e: self.open_news_page(news_urls[2]))
+        news2.bind('<Button-1>', lambda e: self.news_summary(news_urls[2], headlines[2]))
+        news2.bind('<Button-3>', lambda e: self.open_news_page(news_urls[2]))
         news2.bind('<Enter>', lambda e: news2.configure(style='UnderlineNews.TLabel'))
         news2.bind('<Leave>', lambda e: news2.configure(style='News.TLabel'))
         news2.image = tk_images[2]
@@ -666,7 +675,8 @@ class MainWindow(ttk.Frame):
 
         news3 = ttk.Label(self.news_frame, text=headlines[3], image=tk_images[3], compound='left',
                                                                                   style='News.TLabel')
-        news3.bind('<Button-1>', lambda e: self.open_news_page(news_urls[3]))
+        news3.bind('<Button-1>', lambda e: self.news_summary(news_urls[3], headlines[3]))
+        news3.bind('<Button-3>', lambda e: self.open_news_page(news_urls[3]))
         news3.bind('<Enter>', lambda e: news3.configure(style='UnderlineNews.TLabel'))
         news3.bind('<Leave>', lambda e: news3.configure(style='News.TLabel'))
         news3.image = tk_images[3]
@@ -674,7 +684,8 @@ class MainWindow(ttk.Frame):
 
         news4 = ttk.Label(self.news_frame, text=headlines[4], image=tk_images[4], compound='left',
                                                                                   style='News.TLabel')
-        news4.bind('<Button-1>', lambda e: self.open_news_page(news_urls[4]))
+        news4.bind('<Button-1>', lambda e: self.news_summary(news_urls[4], headlines[4]))
+        news4.bind('<Button-3>', lambda e: self.open_news_page(news_urls[4]))
         news4.bind('<Enter>', lambda e: news4.configure(style='UnderlineNews.TLabel'))
         news4.bind('<Leave>', lambda e: news4.configure(style='News.TLabel'))
         news4.image = tk_images[4]
@@ -682,7 +693,8 @@ class MainWindow(ttk.Frame):
 
         news5 = ttk.Label(self.news_frame, text=headlines[5], image=tk_images[5], compound='left',
                                                                                   style='News.TLabel')
-        news5.bind('<Button-1>', lambda e: self.open_news_page(news_urls[5]))
+        news5.bind('<Button-1>', lambda e: self.news_summary(news_urls[5], headlines[5]))
+        news5.bind('<Button-3>', lambda e: self.open_news_page(news_urls[5]))
         news5.bind('<Enter>', lambda e: news5.configure(style='UnderlineNews.TLabel'))
         news5.bind('<Leave>', lambda e: news5.configure(style='News.TLabel'))
         news5.image = tk_images[5]
@@ -690,7 +702,8 @@ class MainWindow(ttk.Frame):
 
         news6 = ttk.Label(self.news_frame, text=headlines[6], image=tk_images[6], compound='left',
                                                                                   style='News.TLabel')
-        news6.bind('<Button-1>', lambda e: self.open_news_page(news_urls[6]))
+        news6.bind('<Button-1>', lambda e: self.news_summary(news_urls[6], headlines[6]))
+        news6.bind('<Button-3>', lambda e: self.open_news_page(news_urls[6]))
         news6.bind('<Enter>', lambda e: news6.configure(style='UnderlineNews.TLabel'))
         news6.bind('<Leave>', lambda e: news6.configure(style='News.TLabel'))
         news6.image = tk_images[6]
@@ -698,7 +711,8 @@ class MainWindow(ttk.Frame):
 
         news7 = ttk.Label(self.news_frame, text=headlines[7], image=tk_images[7], compound='left',
                                                                                   style='News.TLabel')
-        news7.bind('<Button-1>', lambda e: self.open_news_page(news_urls[7]))
+        news7.bind('<Button-1>', lambda e: self.news_summary(news_urls[7], headlines[7]))
+        news7.bind('<Button-3>', lambda e: self.open_news_page(news_urls[7]))
         news7.bind('<Enter>', lambda e: news7.configure(style='UnderlineNews.TLabel'))
         news7.bind('<Leave>', lambda e: news7.configure(style='News.TLabel'))
         news7.image = tk_images[7]
@@ -706,7 +720,8 @@ class MainWindow(ttk.Frame):
 
         news8 = ttk.Label(self.news_frame, text=headlines[8], image=tk_images[8], compound='left',
                                                                                   style='News.TLabel')
-        news8.bind('<Button-1>', lambda e: self.open_news_page(news_urls[8]))
+        news8.bind('<Button-1>', lambda e: self.news_summary(news_urls[8], headlines[8]))
+        news8.bind('<Button-3>', lambda e: self.open_news_page(news_urls[8]))
         news8.bind('<Enter>', lambda e: news8.configure(style='UnderlineNews.TLabel'))
         news8.bind('<Leave>', lambda e: news8.configure(style='News.TLabel'))
         news8.image = tk_images[8]
@@ -714,7 +729,8 @@ class MainWindow(ttk.Frame):
 
         news9 = ttk.Label(self.news_frame, text=headlines[9], image=tk_images[9], compound='left',
                                                                                   style='News.TLabel')
-        news9.bind('<Button-1>', lambda e: self.open_news_page(news_urls[9]))
+        news9.bind('<Button-1>', lambda e: self.news_summary(news_urls[9], headlines[9]))
+        news9.bind('<Button-3>', lambda e: self.open_news_page(news_urls[9]))
         news9.bind('<Enter>', lambda e: news9.configure(style='UnderlineNews.TLabel'))
         news9.bind('<Leave>', lambda e: news9.configure(style='News.TLabel'))
         news9.image = tk_images[9]
@@ -746,16 +762,23 @@ class MainWindow(ttk.Frame):
     def open_news_page(self, news_url):
         webbrowser.open(news_url, new=2, autoraise=True)
                 
-    def news_summary(self, news_url):
+    def news_summary(self, news_url, title):
+        
+        frame = tk.Toplevel(self.start_frame)
+        frame.title(title)
 
         session = req.HTMLSession()
         r = session.get(news_url)
-        summary_xpath = r.html.xpath('//*[@id="leftColumn"]/div[4]', first=True)
+        summary_xpath = r.html.xpath(us.news_summary, first=True)
 
         summary_paragraphs = summary_xpath.find('p')
         summary = ''
         for p in summary_paragraphs:
-            summary += f'\n{p.text}'
+            summary += f'\n{p.text}\n'
+
+        text = ttk.Label(frame, text=summary, wraplength=600)
+        text.pack()
+
 
 class MarketTrends(ttk.Frame):
 
