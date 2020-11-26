@@ -69,8 +69,8 @@ class MainWindow(ttk.Frame):
         self.start_frame = ttk.Frame(self)
 
         # Search_company shortcut
-        self.search_comp = ttk.Entry(self.search_frame, width=50)
-        self.search_comp.grid(row=0, column=0, padx=(0,20))
+        self.search_comp = tk.Entry(self.search_frame, relief='sunken', bd=2, width=60)
+        self.search_comp.grid(row=0, column=0)
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
                                                         self.search_comp.get()))
 
@@ -114,15 +114,22 @@ class MainWindow(ttk.Frame):
         for item in suggestions:
             # If ticker name is too long, shorten it
             if len(item['symbol']) > 8:
-                ticker = item['symbol'][0:8] + '...'
+                ticker = item['symbol'][0:8] + '...'  
             else:
                 ticker = item['symbol'] 
 
-            ttk.Label(self.suggs_window, text=ticker).grid(row=n, column=0)
-            n += 1
+            if len(item['longname']) > 60:
+                name = item['longname'][0:60] + '...'
+            else:
+                name = item['longname']
 
+            ttk.Label(self.suggs_window, text=ticker, width=6).grid(row=n, column=0, padx=(5,20))
+            ttk.Label(self.suggs_window, text=name, width=60, foreground='#7e8082').grid(row=n, column=1, sticky='w')
+            n += 1
+        
         self.suggs_window.deiconify()
         self.search_comp.focus_set()
+        self.suggs_window.lift()
 
         # If search bar is empty, hide window
         if suggestions == []:
@@ -278,7 +285,9 @@ class MainWindow(ttk.Frame):
         for k,v in summary.items():
             ttk.Label(self.ticker_frame, text=k).grid(row=row, column=0, sticky='w')
             ttk.Label(self.ticker_frame, text=v).grid(row=row, column=1, sticky='w')
-            row += 1
+            ttk.Separator(self.ticker_frame, orient=tk.HORIZONTAL).grid(row=row+1, column=0,
+                                                                       columnspan=2, sticky='nesw')
+            row += 2
 
     # Function to be used in ticker_window
     def stock_data(self, symbol):
@@ -763,9 +772,6 @@ class MainWindow(ttk.Frame):
         webbrowser.open(news_url, new=2, autoraise=True)
                 
     def news_summary(self, news_url, title):
-        
-        frame = tk.Toplevel(self.start_frame)
-        frame.title(title)
 
         session = req.HTMLSession()
         r = session.get(news_url)
@@ -776,9 +782,29 @@ class MainWindow(ttk.Frame):
         for p in summary_paragraphs:
             summary += f'\n{p.text}\n'
 
-        text = ttk.Label(frame, text=summary, wraplength=600)
-        text.pack()
+        # Creating a scrollable frame
+        # With the news summary inside it
+        frame = tk.Toplevel(self.start_frame)
+        frame.title(title)
 
+        canvas = tk.Canvas(frame, height=800, width=600)
+        canvas.pack(side='left', fill='both', expand=True)
+
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+
+        sb = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
+        sb.pack(side='right', fill='y')
+
+        canvas.configure(yscrollcommand=sb.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+
+        text_frame = ttk.Frame(canvas)
+        canvas.create_window((0,0), window=text_frame, anchor='nw')
+
+        text = ttk.Label(text_frame, text=summary, wraplength=600)
+        text.pack()
 
 class MarketTrends(ttk.Frame):
 
