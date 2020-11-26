@@ -123,8 +123,8 @@ class MainWindow(ttk.Frame):
             else:
                 name = item['longname']
 
-            ttk.Label(self.suggs_window, text=ticker, width=6).grid(row=n, column=0, padx=(5,20))
-            ttk.Label(self.suggs_window, text=name, width=60, foreground='#7e8082').grid(row=n, column=1, sticky='w')
+            ttk.Label(self.suggs_window, text=ticker, width=10).grid(row=n, column=0, padx=(5,20))
+            ttk.Label(self.suggs_window, text=name, width=54, foreground='#7e8082').grid(row=n, column=1, sticky='w')
             n += 1
         
         self.suggs_window.deiconify()
