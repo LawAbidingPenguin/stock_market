@@ -60,6 +60,12 @@ class MainWindow(ttk.Frame):
                                                  foreground='#1256a0',
                                                  wraplength=350,
                                                  width=50)
+        self.s.configure('Suggestion.TLabel', font='TkDefaultFont 9 bold',
+                                              foreground='#0f69ff',
+                                              width=10)
+        self.s.configure('HoverSuggestion.TLabel', font='TkDefaultFont 9 bold underline',
+                                                   foreground='#0f69ff',
+                                                   width=10)                                                                                                   
 
         # Frames for MainWindow
         self.search_frame = ttk.Frame(self)
@@ -74,8 +80,8 @@ class MainWindow(ttk.Frame):
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
                                                         self.search_comp.get()))
 
-        self.search_button = ttk.Button(self.search_frame, text='Search', command=lambda : 
-                                       [self.ticker_window(),
+        self.search_button = ttk.Button(self.search_frame, text='Search', command=lambda: 
+                                       [self.ticker_window(self.search_comp.get()),
                                        self.search_comp.delete(0,tk.END)])
         self.search_button.grid(row=0, column=1, sticky='w')
 
@@ -109,35 +115,57 @@ class MainWindow(ttk.Frame):
 
         suggestions = [item for item in suggestions if item['isYahooFinance'] == True]
 
+        # Get ticker name from label
+        def get_ticker(widget):
+            return widget.cget('text')
+
         # Dynamically creating labels to display search suggestions
         n = 0
         for item in suggestions:
-            # If ticker name is too long, shorten it
-            if len(item['symbol']) > 8:
-                ticker = item['symbol'][0:8] + '...'  
-            else:
-                ticker = item['symbol'] 
+            
+            ticker = item['symbol'] 
 
             if len(item['longname']) > 60:
                 name = item['longname'][0:60] + '...'
             else:
                 name = item['longname']
 
-            ttk.Label(self.suggs_window, text=ticker, width=10).grid(row=n, column=0, padx=(5,20))
-            ttk.Label(self.suggs_window, text=name, width=54, foreground='#7e8082').grid(row=n, column=1, sticky='w')
+            t_label = ttk.Label(self.suggs_window, text=ticker, 
+                                    style='Suggestion.TLabel')
+            t_label.grid(row=n, column=0, padx=(5,20))                                                       
+
+            n_label = ttk.Label(self.suggs_window, text=name, width=54, 
+                                                      foreground='#7e8082')
+            n_label.grid(row=n, column=1, sticky='w')
+
+            # Bindings
+            t_label.bind('<Enter>', lambda event, t_label=t_label:
+                                                  t_label.configure(
+                                                  style='HoverSuggestion.TLabel'))
+            t_label.bind('<Leave>', lambda event, t_label=t_label:
+                                                  t_label.configure(
+                                                  style='Suggestion.TLabel'))
+            t_label.bind('<Button-1>', lambda event, t_label=t_label:
+                                                     self.ticker_window(get_ticker(t_label)))                                            
+
             n += 1
         
         self.suggs_window.deiconify()
         self.search_comp.focus_set()
+        self.suggs_window.overrideredirect(1)
         self.suggs_window.lift()
+
+        # Position suggestions under search bar
+        x = self.search_comp.winfo_rootx()
+        y = self.search_comp.winfo_rooty()
+        self.suggs_window.geometry(f'+{x}+{y+22}')
 
         # If search bar is empty, hide window
         if suggestions == []:
             self.suggs_window.withdraw()
 
-
     # Displaying ticker info
-    def ticker_window(self):
+    def ticker_window(self, ticker):
         
         self.start_frame.destroy()
 
@@ -145,7 +173,7 @@ class MainWindow(ttk.Frame):
         self.ticker_frame = ttk.Frame(self)
         self.ticker_frame.grid(row=1,column=0)
 
-        ticker = self.search_comp.get()
+        # ticker = self.search_comp.get()
         name, value, value_change, summary = self.stock_data(ticker) 
 
         # Creating start date and end date comboxes
@@ -436,7 +464,7 @@ class MainWindow(ttk.Frame):
             # also making the image darker 
             im = Image.open(io.BytesIO(session.get(img_src).content))
             en = ImageEnhance.Brightness(im)
-            im_dark = en.enhance(0.70)
+            im_dark = en.enhance(0.65)
             images.append(im_dark)
         
         # images to be used in tk widgets
@@ -777,7 +805,13 @@ class MainWindow(ttk.Frame):
         r = session.get(news_url)
         summary_xpath = r.html.xpath(us.news_summary, first=True)
 
-        summary_paragraphs = summary_xpath.find('p')
+        try:
+            summary_paragraphs = summary_xpath.find('p')
+        except AttributeError:
+            return tk.messagebox.showinfo(title='Unavailable Article',
+                                         message=('News currently unavailable...\n'
+                                                 'Right-Click news to visit website.'))
+
         summary = ''
         for p in summary_paragraphs:
             summary += f'\n{p.text}\n'
