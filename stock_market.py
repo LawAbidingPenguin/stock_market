@@ -62,10 +62,10 @@ class MainWindow(ttk.Frame):
                                                  width=50)
         self.s.configure('Suggestion.TLabel', font='TkDefaultFont 9 bold',
                                               foreground='#0f69ff',
-                                              width=10)
+                                              width=15)
         self.s.configure('HoverSuggestion.TLabel', font='TkDefaultFont 9 bold underline',
                                                    foreground='#0f69ff',
-                                                   width=10)                                                                                                   
+                                                   width=15)                                                                                                   
 
         # Frames for MainWindow
         self.search_frame = ttk.Frame(self)
@@ -77,8 +77,7 @@ class MainWindow(ttk.Frame):
         # Search_company shortcut
         self.search_comp = tk.Entry(self.search_frame, relief='sunken', bd=2, width=60)
         self.search_comp.grid(row=0, column=0)
-        self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions(
-                                                        self.search_comp.get()))
+        self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions())
 
         self.search_button = ttk.Button(self.search_frame, text='Search', command=lambda: 
                                        [self.ticker_window(self.search_comp.get()),
@@ -91,12 +90,12 @@ class MainWindow(ttk.Frame):
 
         self.start_window()
 
-    def search_suggestions(self, symbol):
-        
+    def search_suggestions(self): 
         # Destroy all widgets inside TopLevel window
         for child in self.suggs_window.winfo_children():
             child.destroy()
 
+        symbol = self.search_comp.get() 
         url = (f'https://query1.finance.yahoo.com/v1/finance/search?q={symbol}&lang=en-'
               'US&region=US&quotesCount=6&newsCount=4&enableFuzzyQuery=false&'
               'quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_'
@@ -114,7 +113,7 @@ class MainWindow(ttk.Frame):
             suggestions = []
 
         suggestions = [item for item in suggestions if item['isYahooFinance'] == True]
-
+        
         # Get ticker name from label
         def get_ticker(widget):
             return widget.cget('text')
@@ -122,20 +121,19 @@ class MainWindow(ttk.Frame):
         # Dynamically creating labels to display search suggestions
         n = 0
         for item in suggestions:
-            
             ticker = item['symbol'] 
 
-            if len(item['longname']) > 60:
-                name = item['longname'][0:60] + '...'
+            if len(item['longname']) > 50:
+                name = item['longname'][0:50] + '...'
             else:
                 name = item['longname']
 
             t_label = ttk.Label(self.suggs_window, text=ticker, 
                                     style='Suggestion.TLabel')
-            t_label.grid(row=n, column=0, padx=(5,20))                                                       
+            t_label.grid(row=n, column=0, padx=(5,20))
 
-            n_label = ttk.Label(self.suggs_window, text=name, width=54, 
-                                                      foreground='#7e8082')
+            n_label = ttk.Label(self.suggs_window, text=name, width=50, 
+                                                   foreground='#7e8082')
             n_label.grid(row=n, column=1, sticky='w')
 
             # Bindings
@@ -159,7 +157,6 @@ class MainWindow(ttk.Frame):
         x = self.search_comp.winfo_rootx()
         y = self.search_comp.winfo_rooty()
         self.suggs_window.geometry(f'+{x}+{y+22}')
-
         # If search bar is empty, hide window
         if suggestions == []:
             self.suggs_window.withdraw()
