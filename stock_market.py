@@ -68,21 +68,24 @@ class MainWindow(ttk.Frame):
                                                    width=15)                                                                                                   
 
         # Frames for MainWindow
-        self.search_frame = ttk.Frame(self)
-        self.search_frame.grid(row=0, column=0)
+        self.search_frame = ttk.Frame(self.parent)
+        self.search_frame.grid(row=0, column=0, columnspan=2)
 
         self.ticker_frame = ttk.Frame(self)
         self.start_frame = ttk.Frame(self)
 
-        # Search_company shortcut
+        self.home_button = ttk.Button(self.search_frame, text='Home', command=self.start_window)
+        self.home_button.grid(row=0, column=0, sticky='w')
+
+        # Search_company
         self.search_comp = tk.Entry(self.search_frame, relief='sunken', bd=2, width=60)
-        self.search_comp.grid(row=0, column=0)
+        self.search_comp.grid(row=0, column=1, padx=(200,0))
         self.search_comp.bind('<KeyRelease>', lambda e: self.search_suggestions())
 
         self.search_button = ttk.Button(self.search_frame, text='Search', command=lambda: 
                                        [self.ticker_window(self.search_comp.get()),
                                        self.search_comp.delete(0,tk.END)])
-        self.search_button.grid(row=0, column=1, sticky='w')
+        self.search_button.grid(row=0, column=2, sticky='w')
 
         # Creating a new window to show search_suggestions
         self.suggs_window = tk.Toplevel(self)
@@ -122,14 +125,24 @@ class MainWindow(ttk.Frame):
         n = 0
         for item in suggestions:
             ticker = item['symbol'] 
+            
+            if item['quoteType'] == 'EQUITY':
 
-            if len(item['longname']) > 50:
-                name = item['longname'][0:50] + '...'
+                if len(item['longname']) > 50:
+                    name = item['longname'][0:50] + '...'
+                else:
+                    name = item['longname']
+            elif item['quoteType'] == 'INDEX':
+
+                if len(item['shortname']) > 50:
+                    name = item['shortname'][0:50] + '...'
+                else:
+                    name = item['shortname']
             else:
-                name = item['longname']
+                continue
 
-            t_label = ttk.Label(self.suggs_window, text=ticker, 
-                                    style='Suggestion.TLabel')
+            t_label = ttk.Label(self.suggs_window, text=ticker[:40], 
+                                                   style='Suggestion.TLabel')
             t_label.grid(row=n, column=0, padx=(5,20))
 
             n_label = ttk.Label(self.suggs_window, text=name, width=50, 
@@ -158,6 +171,7 @@ class MainWindow(ttk.Frame):
         y = self.search_comp.winfo_rooty()
         self.suggs_window.geometry(f'+{x}+{y+22}')
         # If search bar is empty, hide window
+        print(suggestions)
         if suggestions == []:
             self.suggs_window.withdraw()
 
@@ -168,7 +182,7 @@ class MainWindow(ttk.Frame):
 
         self.ticker_frame.destroy()
         self.ticker_frame = ttk.Frame(self)
-        self.ticker_frame.grid(row=1,column=0)
+        self.ticker_frame.grid(row=0,column=0)
 
         # ticker = self.search_comp.get()
         name, value, value_change, summary = self.stock_data(ticker) 
@@ -414,7 +428,7 @@ class MainWindow(ttk.Frame):
         
         self.start_frame.destroy()
         self.start_frame = ttk.Frame(self)
-        self.start_frame.grid(row=1,column=0)
+        self.start_frame.grid(row=0,column=0)
 
         self.top_frame = ttk.Frame(self.start_frame)
         self.worst_frame = ttk.Frame(self.start_frame)
@@ -1608,8 +1622,8 @@ def main():
     main_window = MainWindow(root)
     market_trends = MarketTrends(root)
 
-    main_window.grid(row=0, column=1, sticky='nsew')
-    market_trends.grid(row=0, column=0, sticky='nsew')
+    main_window.grid(row=1, column=1, sticky='nsew')
+    market_trends.grid(row=1, column=0, sticky='nsew')
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(1, weight=3)
