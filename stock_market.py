@@ -25,6 +25,7 @@ import urls_and_selectors as us
 #TODO Create frames for starting page and ticker window
 
 
+
 class MainWindow(ttk.Frame):
     
     def __init__(self, parent, *args, **kwargs):
@@ -92,6 +93,7 @@ class MainWindow(ttk.Frame):
         self.suggs_window.withdraw()
 
         self.start_window()
+
 
     def search_suggestions(self): 
         # Destroy all widgets inside TopLevel window
@@ -170,8 +172,8 @@ class MainWindow(ttk.Frame):
         x = self.search_comp.winfo_rootx()
         y = self.search_comp.winfo_rooty()
         self.suggs_window.geometry(f'+{x}+{y+22}')
+
         # If search bar is empty, hide window
-        print(suggestions)
         if suggestions == []:
             self.suggs_window.withdraw()
 
@@ -1114,26 +1116,36 @@ class MarketTrends(ttk.Frame):
                                trend_stock1_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock1_label.bind('<Leave>', lambda e:
                                trend_stock1_label.configure(style='Ticker.TLabel'))
+        trend_stock1_label.bind('<Button-1>', lambda e: 
+                                main_window.ticker_window(trend_stock1.text))
 
         trend_stock2_label.bind('<Enter>', lambda e:
                                trend_stock2_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock2_label.bind('<Leave>', lambda e:
                                trend_stock2_label.configure(style='Ticker.TLabel'))
+        trend_stock2_label.bind('<Button-1>', lambda e: 
+                                main_window.ticker_window(trend_stock2.text))
 
         trend_stock3_label.bind('<Enter>', lambda e:
                                trend_stock3_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock3_label.bind('<Leave>', lambda e:
                                trend_stock3_label.configure(style='Ticker.TLabel'))
+        trend_stock3_label.bind('<Button-1>', lambda e: 
+                                main_window.ticker_window(trend_stock3.text))
 
         trend_stock4_label.bind('<Enter>', lambda e:
                                trend_stock4_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock4_label.bind('<Leave>', lambda e:
                                trend_stock4_label.configure(style='Ticker.TLabel'))
+        trend_stock4_label.bind('<Button-1>', lambda e: 
+                                main_window.ticker_window(trend_stock4.text))
 
         trend_stock5_label.bind('<Enter>', lambda e:
                                trend_stock5_label.configure(style='UnderlineTicker.TLabel'))
         trend_stock5_label.bind('<Leave>', lambda e:
                                trend_stock5_label.configure(style='Ticker.TLabel'))   
+        trend_stock5_label.bind('<Button-1>', lambda e: 
+                                main_window.ticker_window(trend_stock5.text))
   
     def gainers(self):
 
@@ -1354,26 +1366,36 @@ class MarketTrends(ttk.Frame):
                                gain_stock1_label.configure(style='UnderlineTicker.TLabel'))
         gain_stock1_label.bind('<Leave>', lambda e:
                                gain_stock1_label.configure(style='Ticker.TLabel'))
+        gain_stock1_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(gain_stock1.text))
 
         gain_stock2_label.bind('<Enter>', lambda e:
                                gain_stock2_label.configure(style='UnderlineTicker.TLabel'))
         gain_stock2_label.bind('<Leave>', lambda e:
                                gain_stock2_label.configure(style='Ticker.TLabel'))
+        gain_stock2_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(gain_stock2.text))
 
         gain_stock3_label.bind('<Enter>', lambda e:
                                gain_stock3_label.configure(style='UnderlineTicker.TLabel'))
         gain_stock3_label.bind('<Leave>', lambda e:
                                gain_stock3_label.configure(style='Ticker.TLabel'))
+        gain_stock3_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(gain_stock3.text))
 
         gain_stock4_label.bind('<Enter>', lambda e:
                                gain_stock4_label.configure(style='UnderlineTicker.TLabel'))
         gain_stock4_label.bind('<Leave>', lambda e:
                                gain_stock4_label.configure(style='Ticker.TLabel'))
+        gain_stock4_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(gain_stock4.text))
 
         gain_stock5_label.bind('<Enter>', lambda e:
                                gain_stock5_label.configure(style='UnderlineTicker.TLabel'))
         gain_stock5_label.bind('<Leave>', lambda e:
                                gain_stock5_label.configure(style='Ticker.TLabel'))
+        gain_stock5_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(gain_stock5.text))
 
     def losers(self):
 
@@ -1594,41 +1616,47 @@ class MarketTrends(ttk.Frame):
                                lose_stock1_label.configure(style='UnderlineTicker.TLabel'))
         lose_stock1_label.bind('<Leave>', lambda e:
                                lose_stock1_label.configure(style='Ticker.TLabel'))
+        lose_stock1_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(lose_stock1.text))
 
         lose_stock2_label.bind('<Enter>', lambda e:
                                lose_stock2_label.configure(style='UnderlineTicker.TLabel'))
         lose_stock2_label.bind('<Leave>', lambda e:
                                lose_stock2_label.configure(style='Ticker.TLabel'))
+        lose_stock2_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(lose_stock2.text))
 
         lose_stock3_label.bind('<Enter>', lambda e:
                                lose_stock3_label.configure(style='UnderlineTicker.TLabel'))
         lose_stock3_label.bind('<Leave>', lambda e:
                                lose_stock3_label.configure(style='Ticker.TLabel'))
+        lose_stock3_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(lose_stock3.text))
 
         lose_stock4_label.bind('<Enter>', lambda e:
                                lose_stock4_label.configure(style='UnderlineTicker.TLabel'))
         lose_stock4_label.bind('<Leave>', lambda e:
                                lose_stock4_label.configure(style='Ticker.TLabel'))
+        lose_stock4_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(lose_stock4.text))
 
         lose_stock5_label.bind('<Enter>', lambda e:
                                lose_stock5_label.configure(style='UnderlineTicker.TLabel'))
         lose_stock5_label.bind('<Leave>', lambda e:
                                lose_stock5_label.configure(style='Ticker.TLabel'))
+        lose_stock5_label.bind('<Button-1>', lambda e:
+                              main_window.ticker_window(lose_stock5.text))
         
-def main():
-    root = tk.Tk()
-    root.state('zoomed')
+root = tk.Tk()
+root.state('zoomed')
 
-    main_window = MainWindow(root)
-    market_trends = MarketTrends(root)
+main_window = MainWindow(root)
+market_trends = MarketTrends(root)
 
-    main_window.grid(row=1, column=1, sticky='nsew')
-    market_trends.grid(row=1, column=0, sticky='nsew')
+main_window.grid(row=1, column=1, sticky='nsew')
+market_trends.grid(row=1, column=0, sticky='nsew')
 
-    root.grid_columnconfigure(0, weight=1)
-    root.grid_columnconfigure(1, weight=3)
-
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=3)
+    
+root.mainloop()
