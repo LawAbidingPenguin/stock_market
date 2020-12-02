@@ -19,12 +19,6 @@ from tkinter import ttk
 
 import urls_and_selectors as us
 
-#TODO Learn about ttk Styles
-#TODO Display news summary as TopLevel window
-#TODO Update MarketTrends with additional info
-#TODO Create frames for starting page and ticker window
-
-
 
 class MainWindow(ttk.Frame):
     
@@ -34,7 +28,11 @@ class MainWindow(ttk.Frame):
 
         # Setting up styles
         self.s = ttk.Style()
+        self.s.configure('WLSymbol_Hover.TLabel', font='TkDefaultFont 9 bold underline',
+                                                  foreground='#0f69ff',
+                                                  anchor='w')
         self.s.configure('WLSymbol.TLabel', font='TkDefaultFont 9 bold',
+                                            foreground='#0f69ff',
                                             anchor='w')
         self.s.configure('WLHeader.TLabel', foreground='#5b636a',
                                             width=10, anchor='e', 
@@ -603,8 +601,14 @@ class MainWindow(ttk.Frame):
 
         for n in range(0,len(names)):
 
-            ttk.Label(frame, text=symbols[n], style='WLSymbol.TLabel').grid(
-                             row=n+2, column=0, pady=(2,0), sticky='w')
+            label = ttk.Label(frame, text=symbols[n], style='WLSymbol.TLabel')
+            label.grid(row=n+2, column=0, pady=(2,0), sticky='w')
+            label.bind('<Enter>', lambda event, label=label: label.configure(
+                                                             style='WLSymbol_Hover.TLabel'))
+            label.bind('<Leave>', lambda event, label=label: label.configure(
+                                                             style='WLSymbol.TLabel'))
+            label.bind('<Button-1>', lambda event, label=label: self.ticker_window(label.cget('text')))
+
             ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=n+3, column=0, sticky='nesw')
 
             ttk.Label(frame, text=names[n]).grid(row=n+2, column=1, pady=(2,0), sticky='w')
