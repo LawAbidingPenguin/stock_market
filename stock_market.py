@@ -7,6 +7,7 @@ from string import Template
 from PIL import (Image, ImageTk,
                 ImageEnhance)
 
+# Imports to be used in the graph
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -16,10 +17,16 @@ from matplotlib.backends.backend_tkagg import (
 
 import tkinter as tk
 from tkinter import ttk
-
+# file containing all the selectors and urls
 import urls_and_selectors as us
 
-
+# MainWindow content:
+# Creating styles to be used in ttk widgets
+# Setting up search entry and search button + Home button
+# Placing and customizing Start and Ticker windows
+# Search suggestions 100-180
+# TickerWindow 181-426
+# StartWindow 431-836
 class MainWindow(ttk.Frame):
     
     def __init__(self, parent, *args, **kwargs):
@@ -92,7 +99,9 @@ class MainWindow(ttk.Frame):
 
         self.start_window()
 
-
+    # Web scraping the data from Yahoo finance search suggestions
+    # Placing that data into our own search suggestions
+    # Function is called on each key release inside the search entry
     def search_suggestions(self): 
         # Destroy all widgets inside TopLevel window
         for child in self.suggs_window.winfo_children():
@@ -105,11 +114,11 @@ class MainWindow(ttk.Frame):
               'quote_single_token_query&newsQueryId=news_cie_vespa&enableCb='
               'true&enableNavLinks=true&enableEnhancedTrivialQuery=true')
 
+        # Turning the response text into json format
         session = req.HTMLSession()
         res = session.get(url)
         page_text = json.loads(res.html.text)
 
-        # Getting rid of KeyError
         try:
             suggestions = page_text['quotes']
         except KeyError:
@@ -161,6 +170,10 @@ class MainWindow(ttk.Frame):
 
             n += 1
         
+        # Show search suggestions window
+        # Set focus no search entry
+        # Override suggs_window so we have no header, borders
+        # Showing the suggs_window on top of MainWindow using lift()
         self.suggs_window.deiconify()
         self.search_comp.focus_set()
         self.suggs_window.overrideredirect(1)
@@ -175,7 +188,9 @@ class MainWindow(ttk.Frame):
         if suggestions == []:
             self.suggs_window.withdraw()
 
+
     # Displaying ticker info
+    # Function called on search button press
     def ticker_window(self, ticker):
         
         self.start_frame.destroy()
@@ -184,7 +199,6 @@ class MainWindow(ttk.Frame):
         self.ticker_frame = ttk.Frame(self)
         self.ticker_frame.grid(row=0,column=0)
 
-        # ticker = self.search_comp.get()
         name, value, value_change, summary = self.stock_data(ticker) 
 
         # Creating start date and end date comboxes
@@ -249,6 +263,7 @@ class MainWindow(ttk.Frame):
         frequency.grid(row=1, column=6, sticky='w', padx=(20,0))
         frequency.set('Daily')
 
+        # Web scraping data from yahoo finance to display in graph
         def create_chart():
 
             chart_frame = ttk.Frame(self.ticker_frame)
@@ -256,6 +271,7 @@ class MainWindow(ttk.Frame):
 
             symbol = ticker
 
+            # Getting data for start/end date
             s_day = start_day.get()
             s_month = start_month.get()
             s_year = start_year.get()[-2:]
@@ -274,7 +290,7 @@ class MainWindow(ttk.Frame):
             s_time = int(dt.datetime.timestamp(s_date))
             e_time = int(dt.datetime.timestamp(e_date))
             
-            # Getting first trade time to notify the user
+            # Getting first trade time to check and display error to user
             session = req.HTMLSession()
             r = session.get('https://query1.finance.yahoo.com/v8/finance/'
                             f'chart/{symbol}?region=US&lang=en-US&'
@@ -283,7 +299,7 @@ class MainWindow(ttk.Frame):
             page_text = json.loads(r.html.text)
             first_trade_time = int(page_text['chart']['result']
                               [0]['meta']['firstTradeDate'])
-            # first_trade_time in dd/mm/yy date form
+            # first trade time in dd/mm/yy date form
             ftd = dt.datetime.fromtimestamp(first_trade_time).strftime('%d/%m/%y')
             
             # Creating frequency argument
@@ -295,6 +311,9 @@ class MainWindow(ttk.Frame):
             else:
                 freq = '1mo'
 
+            # If start/end time in seconds is lower than the ftd time
+            # Show message popup
+            # if time is valid, destroy prevoius graph and display new one           
             if s_time < first_trade_time or e_time < first_trade_time:
                 tk.messagebox.showinfo(title='First Trade Date',
                                        message=f'No trades made before {ftd}')
