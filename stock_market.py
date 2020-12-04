@@ -20,13 +20,26 @@ from tkinter import ttk
 # file containing all the selectors and urls
 import urls_and_selectors as us
 
-# MainWindow content:
-# Creating styles to be used in ttk widgets
-# Setting up search entry and search button + Home button
-# Placing and customizing Start and Ticker windows
-# Search suggestions 100-180
-# TickerWindow 181-426
-# StartWindow 431-836
+# TABLE OF CONTENTS:
+    # MainWindow 43-890:
+        # Search Suggestions 118-202
+        # ticker_window 207-456:
+            # create_chart 280-361
+            # stock_data 364-390
+            # chart_data 393-456
+        # start_window 459-890:
+            # get_watchlist 482-581
+            # get_wl_data (gets and displays watchlist data) 584-680
+            # news 682-846
+            # open_news_page 848-849
+            # news_summary (read news article) 851-890
+    # MarketTrends 892-1684:
+        # trending_stocks 936-1184
+        # gainers 1186-1434
+        # losers 1436-1684
+    # Running and configuring root/classes 1686-1698
+
+
 class MainWindow(ttk.Frame):
     
     def __init__(self, parent, *args, **kwargs):
@@ -567,7 +580,7 @@ class MainWindow(ttk.Frame):
         label5.bind('<Button-1>', lambda e: self.get_wl_data(urls[5], names[5]))
         label5.bind('<Leave>', lambda e: label5.configure(style='Watchlist.TLabel'))
 
-    # Getting the data for each watchlist
+    # Getting the data for each watchlist and displaying it
     def get_wl_data(self, url, title):
 
         frame = tk.Toplevel(self.start_frame)
