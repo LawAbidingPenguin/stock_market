@@ -20,3 +20,6 @@
 - Current trending stocks alongside with biggest gainers/losers
 - Equity/index data
 - Date and frequency filtered graph
+
+**Known issues:**
+- Inaccuare and poorly plotted graph
