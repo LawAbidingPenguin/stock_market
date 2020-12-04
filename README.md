@@ -1,12 +1,12 @@
 # Stock Market is a personal project showcasing Web Scraping and GUI application.
 
 **Dependecies:**
-- tkinter
-- requests_html
-- pandas
-- matplotlib
-- seaborn
-- Other built in libraries...
+ - tkinter
+ - requests_html
+ - pandas
+ - matplotlib
+ - seaborn
+ - Other built in libraries...
 
 **Scraped sites:**
 - __Investing__ for stock market news https://www.investing.com
