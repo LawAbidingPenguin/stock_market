@@ -6,7 +6,6 @@
  - pandas
  - matplotlib
  - seaborn
- - Other built in libraries...
 
 **Scraped sites:**
 - __Investing__ for stock market news https://www.investing.com
