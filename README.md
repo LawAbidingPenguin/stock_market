@@ -8,8 +8,8 @@
  - seaborn
 
 **Scraped sites:**
-- __Investing__ for stock market news https://www.investing.com
-- __Yahoo Finance__ for ticker/stock data https://finance.yahoo.com
+- __[Investing](https://www.investing.com/news/stock-market-news)__ for stock market news
+- __[Yahoo Finance](https://finance.yahoo.com)__ for ticker/stock data
 
 
 **Features:**
