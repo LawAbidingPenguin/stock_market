@@ -29,7 +29,7 @@ import urls_and_selectors as us
             # chart_data 393-456
         # start_window 459-890:
             # get_watchlist 482-581
-            # get_wl_data (gets and displays watchlist data) 584-680
+            # get_wl_data (scrapes and displays watchlist data) 584-680
             # news 682-846
             # open_news_page 848-849
             # news_summary (read news article) 851-890
@@ -37,7 +37,7 @@ import urls_and_selectors as us
         # trending_stocks 936-1184
         # gainers 1186-1434
         # losers 1436-1684
-    # Running and configuring root/classes 1686-1698
+    # Initializing and configuring root/classes 1686-1698
 
 
 class MainWindow(ttk.Frame):
@@ -184,7 +184,7 @@ class MainWindow(ttk.Frame):
             n += 1
         
         # Show search suggestions window
-        # Set focus no search entry
+        # Set focus on search entry
         # Override suggs_window so we have no header, borders
         # Showing the suggs_window on top of MainWindow using lift()
         self.suggs_window.deiconify()
@@ -205,7 +205,7 @@ class MainWindow(ttk.Frame):
     # Displaying ticker info
     # Function called on search button press
     def ticker_window(self, ticker):
-        
+        # destroying and creating new frame
         self.start_frame.destroy()
 
         self.ticker_frame.destroy()
@@ -217,10 +217,10 @@ class MainWindow(ttk.Frame):
         # Creating start date and end date comboxes
         filter_frame = ttk.LabelFrame(self.ticker_frame, text='Filter Graph')
         filter_frame.grid(row=2, column=0, columnspan=4)
-
+        # start and end label for dates
         start_label = ttk.Label(filter_frame, text='Start date:')
         end_label = ttk.Label(filter_frame, text='End Date:')      
-
+        # storing values to be used inside comboboxes
         days = []
         years = []
         months = []
@@ -230,7 +230,7 @@ class MainWindow(ttk.Frame):
             years.append(y)
         for m in range(1,13):
             months.append(m)
-
+        # Creating start/end date comboboxes to be used for filtering the graph
         start_day = ttk.Combobox(filter_frame, values=days, width=2)
         start_month = ttk.Combobox(filter_frame, values=months, width=2)
         start_year = ttk.Combobox(filter_frame, values=years, width=5)
@@ -254,11 +254,12 @@ class MainWindow(ttk.Frame):
         year = int(today[0])
         month = int(today[1])
         day = int(today[2])
-
+        # Setting end date comboboxes to current day by default
         end_day.set(day)
         end_month.set(month)
         end_year.set(year)
-
+        # Setting start date comboxoes to be one month before end date
+        # Also adjusting the year if end month is January
         start_day.set(day)
         if end_month.get() == '1':
             start_month.set('12')
@@ -267,6 +268,7 @@ class MainWindow(ttk.Frame):
             start_month.set(str(int(end_month.get())-1))
             start_year.set(year)        
 
+        # Creaking the frequency combobox to filter the chart
         freq_label = ttk.Label(filter_frame, text='Frequency:')
         frequency = ttk.Combobox(filter_frame, width=8, 
                                                values=['Daily',
@@ -276,9 +278,9 @@ class MainWindow(ttk.Frame):
         frequency.grid(row=1, column=6, sticky='w', padx=(20,0))
         frequency.set('Daily')
 
-        # Web scraping data from yahoo finance to display in graph
+        # Creating date filtered graphs
         def create_chart():
-
+            
             chart_frame = ttk.Frame(self.ticker_frame)
             chart_frame.grid(row=3, column=0, columnspan=4)
 
@@ -339,11 +341,12 @@ class MainWindow(ttk.Frame):
 
         # Initial chart
         create_chart()    
-
+        # Apply button to apply start/end date arguments and create new chart
         apply_but = ttk.Button(filter_frame, text='Apply', 
                                              command=create_chart)
         apply_but.grid(row=1, column=7)                                           
 
+        # Displaying other company/ticker data
         name_label = ttk.Label(self.ticker_frame, text=name)
         value_label = ttk.Label(self.ticker_frame, text=value)
         value_change_label = ttk.Label(self.ticker_frame, text=value_change)
@@ -351,20 +354,20 @@ class MainWindow(ttk.Frame):
         name_label.grid(row=0, column=0, sticky='w')
         value_label.grid(row=1, column=0, sticky='w')
         value_change_label.grid(row=1, column=0, sticky='ne')
-
+        # Displaying the stock summary
         row = 4
         for k,v in summary.items():
             ttk.Label(self.ticker_frame, text=k).grid(row=row, column=0, sticky='w')
             ttk.Label(self.ticker_frame, text=v).grid(row=row, column=1, sticky='w')
             ttk.Separator(self.ticker_frame, orient=tk.HORIZONTAL).grid(row=row+1, column=0,
-                                                                       columnspan=2, sticky='nesw')
+                                                                   columnspan=2, sticky='nesw')
             row += 2
 
-    # Function to be used in ticker_window
+    # Function to be used in ticker_window, web scraping data from yahoo finance to display in graph 
     def stock_data(self, symbol):
         
         session = req.HTMLSession()
-
+        # Adjusting the url
         if symbol[0] == '^':
             # Modified symbol variable without '^'
             mod_symbol = symbol.replace('^', '')
